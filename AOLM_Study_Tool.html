@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>AOLM Study Tool</title>
+<style>
+/* AOLM Study Tool — self-contained, system fonts only */
+:root {
+  --bg: #F3F0E8;
+  --bg-2: #E8E3D6;
+  --ink: #1A2422;
+  --muted: #3A4A47;
+  --card: #FFFcf6;
+  --accent: #0D4A43;
+  --accent-2: #15685E;
+  --accent-soft: #D7EBE7;
+  --gold: #6E5210;
+  --gold-soft: #F3E6C4;
+  --ok: #0C5A38;
+  --ok-bg: #D8F0E4;
+  --bad: #8A1C1C;
+  --bad-bg: #F8DDDD;
+  --line: #D0CBBE;
+  --focus: #0D4A43;
+  --shadow: 0 1px 3px rgba(26, 36, 34, 0.08), 0 8px 24px rgba(26, 36, 34, 0.06);
+  --radius: 14px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: 112.5%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  z-index: 100;
+}
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+header.app-header {
+  background: var(--accent);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.header-inner {
+  max-width: 56rem;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+}
+.brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+  background: none;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0.25rem 0;
+  text-align: left;
+}
+.brand small {
+  display: block;
+  font-weight: 500;
+  font-size: 0.72rem;
+  opacity: 0.9;
+  letter-spacing: 0;
+}
+nav.main-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  flex: 1 1 auto;
+}
+nav.main-nav button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+}
+nav.main-nav button:hover { background: rgba(255,255,255,0.12); }
+nav.main-nav button[aria-current="page"] {
+  background: #fff;
+  color: var(--accent);
+  font-weight: 700;
+}
+.header-actions { margin-left: auto; }
+.btn-reset {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.55);
+  color: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+}
+.btn-reset:hover { background: rgba(255,255,255,0.12); }
+main {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 4rem;
+}
+h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 0.75rem; }
+h2 { font-size: 1.25rem; margin: 1.4rem 0 0.5rem; }
+h3 { font-size: 1.05rem; margin: 1.1rem 0 0.4rem; }
+p { margin: 0 0 0.85rem; }
+.lead { font-size: 1.05rem; color: var(--muted); }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1rem;
+}
+.topic-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+}
+@media (min-width: 640px) {
+  .topic-grid { grid-template-columns: 1fr 1fr; }
+}
+.topic-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  min-height: 44px;
+}
+.topic-card:hover { border-color: var(--accent-2); }
+.topic-card .num {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.topic-card h2 { margin: 0.15rem 0 0.4rem; font-size: 1.05rem; }
+.progress {
+  height: 0.7rem;
+  background: var(--bg-2);
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 0.35rem 0;
+}
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent-2);
+  border-radius: 99px;
+}
+.badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  margin-top: 0.25rem;
+}
+.badge-strong { background: var(--ok-bg); color: var(--ok); }
+.badge-shaky { background: var(--gold-soft); color: var(--gold); }
+.badge-notyet { background: var(--bad-bg); color: var(--bad); }
+.badge-plain { background: var(--accent-soft); color: var(--accent); }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+.btn {
+  font: inherit;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  cursor: pointer;
+  min-height: 48px;
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.btn:hover { background: var(--accent-2); border-color: var(--accent-2); }
+.btn-secondary {
+  background: var(--card);
+  color: var(--accent);
+}
+.btn-secondary:hover { background: var(--accent-soft); }
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.note, .flag, .timer-note {
+  background: var(--gold-soft);
+  border-left: 4px solid var(--gold);
+  padding: 0.75rem 0.9rem;
+  border-radius: 0 10px 10px 0;
+  margin: 0.9rem 0;
+  color: var(--ink);
+}
+.flag { background: #F8E7D0; }
+.lesson p { max-width: 42rem; }
+.lesson p + p { margin-top: 0; }
+.worked {
+  background: var(--accent-soft);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin: 0.8rem 0 1rem;
+}
+.worked ol { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+.q-meta { color: var(--muted); font-size: 0.88rem; margin-bottom: 0.4rem; }
+fieldset.options {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+fieldset.options legend {
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  padding: 0;
+}
+.label-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  margin: 0.4rem 0;
+  cursor: pointer;
+  min-height: 48px;
+}
+.label-opt:hover { border-color: var(--accent-2); }
+.label-opt:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.label-opt input { margin-top: 0.3rem; accent-color: var(--accent); width: 1.15rem; height: 1.15rem; flex-shrink: 0; }
+.label-opt.chosen-ok { border-color: var(--ok); background: var(--ok-bg); }
+.label-opt.chosen-bad { border-color: var(--bad); background: var(--bad-bg); }
+.label-opt.show-right { border-color: var(--ok); background: var(--ok-bg); }
+.feedback {
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin: 0.8rem 0;
+}
+.feedback.ok { background: var(--ok-bg); border: 1px solid var(--ok); }
+.feedback.bad { background: var(--bad-bg); border: 1px solid var(--bad); }
+.feedback h3 { margin-top: 0; }
+.num-input {
+  font: inherit;
+  font-size: 1.1rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  width: 100%;
+  max-width: 16rem;
+  min-height: 48px;
+  background: var(--card);
+  color: var(--ink);
+}
+.timer {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  display: inline-block;
+}
+.timer.warn { background: var(--gold); color: #fff; }
+.timer.danger { background: var(--bad); }
+.crumb { font-size: 0.88rem; color: var(--muted); margin-bottom: 0.5rem; }
+.crumb button {
+  background: none;
+  border: 0;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  min-height: auto;
+}
+footer.app-footer {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+.level-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--line);
+}
+ul.plain { padding-left: 1.2rem; margin: 0.3rem 0 0.8rem; }
+ul.plain li { margin: 0.25rem 0; }
+.home-hero { margin-bottom: 1.25rem; }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="shell"></div>
+<script>
+var DATA = {"topics":[{"id":"om","n":1,"title":"OM, mission, strategy and global operations","blurb":"What operations management is, the three essential functions, mission versus strategy, the three routes to competitive advantage, and why firms go global."},{"id":"fc","n":2,"title":"Forecasting","blurb":"What a forecast is, time horizons, qualitative methods, time-series components, and the naive rule. Later quantitative methods are named only — the slides do not give their formulas."},{"id":"pd","n":3,"title":"Product design, life cycle and QFD","blurb":"The product decision, strategy options, the product life cycle diagram, drivers of new products, and quality function deployment."},{"id":"ps","n":4,"title":"Process strategy","blurb":"The four process strategies and how they must fit volume and variety, with the lecture’s hospital, motorcycle, snack and computer examples."},{"id":"cap","n":5,"title":"Capacity, utilisation and efficiency","blurb":"Design capacity, effective capacity and actual output, plus the two formulas and the bakery and Frito-Lay worked examples."},{"id":"scm","n":6,"title":"Supply chain management","blurb":"Why the supply chain matters, how strategy shapes supply-chain choices, sourcing (many versus few suppliers), and risk tactics from the lecture table."},{"id":"qm","n":7,"title":"Quality and TQM","blurb":"What quality means, the costs of quality, TQM ideas that the slides actually explain, the PDCA cycle, inspection and poka-yoke."}],"lessons":{"om":[{"type":"h","text":"What operations management is"},{"type":"p","text":"The lecture defines operations management (OM) as a “disciple” that involves the design, operation and improvement of the systems that create and deliver an organisation’s products and services."},{"type":"flag","text":"The slide uses the word “disciple”. That is almost certainly a typo for “discipline”, but the wording on the slide is “disciple”."},{"type":"p","text":"In everyday terms, OM is how a business actually gets things done. Think of a small café: deciding the menu, running the counter and the kitchen, getting orders out on time, and then finding a less wasteful way to do it next week."},{"type":"p","text":"The lecture’s “operations basics” are: create better products; deliver shipments on time and damage-free; meet customer requirements; provide better service with less effort and cost; use as few resources as needed; and aim for high quality."},{"type":"h","text":"Three essential functions"},{"type":"p","text":"Any organisation, the lecture says, is organised around three essential functions. Marketing generates demand. Production or operations creates the product (or service). Finance and accounting tracks how well the organisation is doing, pays bills and collects money."},{"type":"p","text":"The same three functions show up in the lecture’s organisation charts for a commercial bank, an airline and a manufacturing firm. In a bank, for example, operations includes teller scheduling, cheque clearing and vault operations; marketing includes loans; finance includes investments and securities."},{"type":"h","text":"What operations managers do"},{"type":"p","text":"The basic management functions listed are planning, organising, staffing, leading and controlling. Hiring is not on that list (staffing is)."},{"type":"p","text":"The lecture also lists ten strategic decisions that operations managers handle: design of goods and services; managing quality; process and capacity strategy; location strategy; layout strategy; human resources and job design; supply-chain management; inventory management; scheduling; and maintenance. Later topics in this tool go deeper on some of these; the intro lecture only names them."},{"type":"h","text":"Goods and services"},{"type":"p","text":"A good is tangible — the lecture’s example is the airline seat itself. A service is intangible — a ride in that seat. Services are often produced and consumed at the same time (a haircut), unique to the customer, high in customer interaction, and harder to store, automate or resell. Goods can usually be kept in inventory, tend to be more standardised, and often have some residual value."},{"type":"h","text":"Mission and strategy"},{"type":"p","text":"A mission statement tells the organisation where it is going. It is the organisation’s purpose for being. It answers “What do we contribute to society?” and gives boundaries and focus."},{"type":"p","text":"The strategy tells the organisation how to get there. It is the action plan to achieve the mission. Functional areas each have strategies. Strategies use strengths and opportunities, deal with threats and avoid weaknesses."},{"type":"p","text":"A student analogy: your mission might be “finish my MSc and be useful in operations work”. Your strategy is the plan — which modules to master, how you study, what experience you seek. The lecture is clear that the mission comes first: it is where you are going, and the strategy is how you get there."},{"type":"h","text":"Three approaches to competitive advantage"},{"type":"p","text":"The lecture asks you to identify and explain three approaches: differentiation (better, or at least different), cost leadership (cheaper), and response (more responsive)."},{"type":"p","text":"Differentiation is uniqueness that can go beyond physical features to everything that shapes the customer’s view of value. Lecture examples: Safeskin gloves (leading-edge products), Walt Disney Magic Kingdom (experience differentiation), and Hard Rock Cafe (dining experience)."},{"type":"p","text":"Cost leadership means providing the maximum value as perceived by the customer. The lecture is explicit: this does not imply low quality. Examples: Southwest Airlines (secondary airports, no-frills service, efficient use of equipment) and Walmart (small overhead, shrinkage and distribution costs). A campus shop can compete on cost by keeping a simple range and low waste, without selling poor products."},{"type":"p","text":"Response has three parts in the lecture: flexibility (matching market changes in design innovation and volumes — “a way of life at Hewlett-Packard”); reliability (meeting schedules — the German machine industry); and quickness in design, production and delivery (Johnson Electric, Pizza Hut)."},{"type":"h","text":"Why firms go global"},{"type":"p","text":"The lecture groups six reasons. Tangible reasons: (1) reduce costs (labour, taxes, tariffs, and so on); (2) improve the supply chain; (3) provide better goods and services; (4) understand markets. Intangible reasons: (5) learn to improve operations; (6) attract and retain global talent."},{"type":"p","text":"Examples given include Boeing’s worldwide 787 sales and supply chain, Sony buying components in Thailand, Malaysia and elsewhere, Benetton moving inventory faster through flexible design, production and distribution, Volvo assembled in several countries after Geely’s purchase, and Haier producing in South Carolina for a large share of some US markets."}],"fc":[{"type":"h","text":"What forecasting is"},{"type":"p","text":"Forecasting, the lecture says, is the process of predicting a future event. It is the underlying basis of all business decisions about production, inventory, personnel and facilities."},{"type":"p","text":"A corner shop forecasts so it knows how much bread to order. A student might forecast how many hours a module will take so they can plan the week. The idea is the same: use what you know to look ahead."},{"type":"h","text":"Time horizons"},{"type":"p","text":"Short-range forecasts go up to 1 year, and are generally less than 3 months. They are used for purchasing, job scheduling, workforce levels, job assignments and production levels."},{"type":"p","text":"Medium-range forecasts cover 3 months to 3 years, and support sales and production planning and budgeting. Long-range forecasts are 3+ years, for new product planning, facility location, capital expenditures, and research and development."},{"type":"p","text":"The lecture also notes three differences: medium and long-range forecasts deal with more comprehensive issues and support planning decisions about products, plants and processes; short-term forecasting usually uses different methods from longer-term forecasting; and short-term forecasts tend to be more accurate than longer-term forecasts."},{"type":"h","text":"Types of forecast"},{"type":"p","text":"Economic forecasts address the business cycle — inflation, money supply, housing starts, and so on. Technological forecasts predict the rate of technological progress and affect new product development. Demand forecasts predict sales of existing products and services."},{"type":"p","text":"Forecasts matter strategically for supply-chain management (supplier relations, innovation, cost and speed to market), human resources (hiring, training, lay-offs) and capacity (shortages can mean late delivery and lost customers)."},{"type":"h","text":"Seven steps"},{"type":"p","text":"The lecture’s seven steps, in order, are: (1) determine the use of the forecast; (2) select the items to be forecasted; (3) determine the time horizon of the forecast; (4) select the forecasting model(s); (5) gather the data needed to make the forecast; (6) make the forecast; (7) validate and implement the results."},{"type":"h","text":"Qualitative and quantitative approaches"},{"type":"p","text":"Qualitative methods are used when the situation is vague and little data exist — for example new products or new technology. They involve intuition and experience (the lecture’s example is forecasting sales on the internet)."},{"type":"p","text":"Quantitative methods are used when the situation is ‘stable’ and historical data exist — existing products and current technology. They involve mathematical techniques (the lecture’s example is forecasting sales of colour televisions)."},{"type":"p","text":"Four qualitative methods are taught. A jury of executive opinion pools a small group of high-level experts and managers; it can be combined with statistical models, is relatively quick, and has a ‘group-think’ disadvantage."},{"type":"p","text":"The Delphi method is an iterative group process that continues until consensus is reached. It has three types of participant: decision makers, staff and respondents."},{"type":"p","text":"A sales force composite asks each salesperson to project their sales, then combines the figures at district and national level after a reasonableness review. Sales reps know customers’ wants, but they may be overly optimistic."},{"type":"p","text":"A market survey asks customers about purchasing plans. It is useful for demand and product design, but what people say and what they do may differ, and answers may be overly optimistic."},{"type":"h","text":"Quantitative methods — names only"},{"type":"p","text":"The overview slide lists five quantitative approaches. Naive approach, moving averages, exponential smoothing and trend projection are grouped as time-series models. Linear regression is grouped as an associative model."},{"type":"flag","text":"The slides name moving averages, exponential smoothing, trend projection and linear regression, and say which family each belongs to. They do not give formulas, notation or worked examples for those four methods. This tool will not invent them. If you need the calculations, check with your lecturer or the set Chapter 4 reading."},{"type":"h","text":"Time-series ideas and the naive rule"},{"type":"p","text":"A time series is a set of evenly spaced numerical data, observed at regular time periods. The forecast is based only on past values. It assumes that factors that influenced the past and present will continue to influence the future."},{"type":"p","text":"The four components are trend, seasonal, cyclical and random. Trend is a persistent overall upward or downward pattern, typically lasting several years, driven by things such as population, technology, age or culture."},{"type":"p","text":"Seasonal is a regular up-and-down pattern within a single year, due to weather, customs and the like. The lecture table shows, for example, 7 days in a week, 12 months in a year, and 4 quarters in a year."},{"type":"p","text":"Cyclical movements also repeat, but they last multiple years and are affected by the business cycle, political and economic factors. The lecture says they often have causal or associative relationships. Random is the erratic, unsystematic residual — short, non-repeating, due to random variation or unforeseen events."},{"type":"p","text":"The only numerical forecasting method fully worked in the lecture is the naive approach. It assumes demand in the next period is the same as demand in the most recent period. The lecture’s example: if January sales were 68, then February sales will be 68. It can be cost-effective, efficient, and a good starting point."},{"type":"p","text":"Forecasting in services is said to present unusual challenges: a special need for short-term records, needs that differ by industry and product, holidays and other calendar events, and unusual events. The lecture shows hourly patterns for a fast-food restaurant and a FedEx call centre, but it does not print the individual bar values, so this tool does not treat those heights as given figures."}],"pd":[{"type":"h","text":"The product decision"},{"type":"p","text":"The objective of the product decision, the lecture says, is to develop and implement a product strategy that meets the demands of the marketplace with a competitive advantage."},{"type":"p","text":"Product strategy options are the same three competitive ideas you have already met, with product examples: differentiation (Shouldice Hospital), low cost (Taco Bell), and rapid response (Toyota). A student café might differentiate with a signature sandwich, compete on low cost with a short simple menu, or compete on rapid response by preparing orders unusually quickly."},{"type":"h","text":"The product life cycle"},{"type":"p","text":"A product life cycle may be any length from a few days to decades. The operations function must be able to introduce new products successfully."},{"type":"p","text":"Figure 5.2 labels four phases, in order: Introduction, Growth, Maturity and Decline. It plots cost of development and production and sales revenue against those phases. The area in Introduction is labelled Loss. Profit appears from around late Growth through much of Decline. A small Loss region appears again at the end of Decline. The figure has no numeric values."},{"type":"flag","text":"A StudyNet quiz asked what operations should “focus on” in the decline phase, and what capacity concerns arise in maturity. Figure 5.2 names the phases and shows loss, profit, sales and cost — it does not state those operational focuses. This tool will not guess them. If they come up in class, check with your lecturer (they may be in the Chapter 5 reading, which was not in the uploaded files)."},{"type":"flag","text":"Another StudyNet question asked what percentage of sales from new products is “indicative of industry leaders”. That figure is not in the uploaded lectures, so it is not taught or tested as a fact here."},{"type":"h","text":"Generating new products"},{"type":"p","text":"The lecture lists six items under “Internal structure”: (1) understanding the customer; (2) economic change; (3) sociological and demographic change; (4) technological change; (5) political and legal change; (6) market practice, professional standards, suppliers, distributors."},{"type":"h","text":"Quality function deployment"},{"type":"p","text":"Quality function deployment (QFD) is used to determine what will satisfy the customer, and to translate those customer desires into the target design."},{"type":"p","text":"The house of quality uses a planning matrix to relate customer wants to how the firm is going to meet those wants. The lecture defines these ideas in a few bullets; it does not work a full house-of-quality matrix, so this tool will not invent one."},{"type":"p","text":"Everyday picture: if students tell a campus print shop they want “cheap colour posters, ready the same day”, QFD is the process of turning that wish list into a concrete design — paper stock, machine choice, opening hours — and the house of quality is the planning grid that maps each wish to those “how” decisions."}],"ps":[{"type":"h","text":"What process strategy is for"},{"type":"p","text":"The objective is to create a process that produces offerings that meet customer requirements within cost and other managerial constraints. The choice has long-term effects on efficiency and production flexibility, and on costs and quality."},{"type":"p","text":"The lecture describes four basic strategies: process focus, repetitive focus, product focus, and mass customisation. Within each, there are many ways they may be implemented."},{"type":"h","text":"Fitting volume and variety"},{"type":"p","text":"Figure 7.1 says the process selected must fit with volume and variety. High variety means one or few units per run (it allows customisation). Mid-way, “changes in modules” means modest runs of standardised modules. “Changes in attributes” (grade, quality, size, thickness and so on) goes with long runs only."},{"type":"p","text":"A cell labelled “Poor Strategy” sits at low volume with only attribute changes, and the lecture warns that both fixed and variable costs are high there."},{"type":"h","text":"Process focus"},{"type":"p","text":"Facilities are organised around specific activities or processes. They use general-purpose equipment and skilled personnel, with a high degree of product flexibility. Costs are typically high and equipment utilisation is typically low. Product flows may vary a lot, which makes planning and scheduling a challenge."},{"type":"p","text":"The lecture calls this low-volume, high-variety, intermittent processes. The example is Arnold Palmer Hospital: many inputs (surgeries, sick patients, baby deliveries, emergencies) move through many departments and routings to many different outputs (uniquely treated patients). Job shops, print shops, hospitals and restaurants are also listed here."},{"type":"p","text":"A student parallel: a tutor who designs a different lesson for every learner is running a process-focus style of work — flexible, skilled, and not cheap per person."},{"type":"h","text":"Repetitive focus"},{"type":"p","text":"Facilities are often organised as assembly lines. They are characterised by modules — parts and assemblies made previously — which may be combined for many output options. This is less flexible than process focus, but more efficient."},{"type":"p","text":"The example is Harley-Davidson (modular). Raw materials and module inputs (multiple engines and wheel modules) pass through “few modules”, then modules are combined for many outputs (many combinations of motorcycles). The volume–variety figure also lists autos, motorcycles and home appliances in this band."},{"type":"h","text":"Product focus"},{"type":"p","text":"Facilities are organised by product. Volume is high and variety is low. Long, continuous production runs make the process efficient. Fixed cost is typically high and variable cost typically low. Labour is generally less skilled."},{"type":"p","text":"The example is Frito-Lay: high-volume, low-variety, continuous process. Few inputs (corn, potatoes, water, seasoning) become output variations mainly in size, shape and packaging (3-oz, 5-oz, 24-oz packs labelled for each market). The figure also lists commercial baked goods, steel, glass and beer."},{"type":"h","text":"Mass customisation"},{"type":"p","text":"Mass customisation is the rapid, low-cost production of goods and services to satisfy increasingly unique customer desires. It combines the flexibility of a process focus with the efficiency of a product focus. The figure calls it difficult to achieve, but with huge rewards."},{"type":"p","text":"The example is Dell Computer: high-volume, high-variety. Many part and component inputs (chips, hard drives, software, cases) go through many modules to many output versions (custom PCs and notebooks). The lecture also lists imaginative product design, flexible process design, tightly controlled inventory, tight schedules, and responsive supply-chain partners, under a “high-volume build-to-order” heading."}],"cap":[{"type":"h","text":"What capacity is"},{"type":"p","text":"Capacity is the throughput, or the number of units a facility can hold, receive, store or produce in a period of time. It determines whether demand will be satisfied, and it determines fixed costs. The lecture talks about three time horizons for capacity."},{"type":"p","text":"Think of a campus bakery window. How many rolls it can theoretically turn out in a week, how many it realistically expects to turn out given breaks and changeovers, and how many it actually baked last week, are three different numbers. The lecture gives formal names for those ideas."},{"type":"h","text":"Planning over a time horizon"},{"type":"p","text":"Figure S7.1 splits options into “modify capacity” and “use capacity”."},{"type":"p","text":"Long-range planning can modify capacity by designing new production processes, adding or selling long-lead-time equipment, acquiring or selling facilities, and acquiring competitors. Using capacity at this horizon is marked as difficult, because limited options exist."},{"type":"p","text":"Intermediate-range (aggregate) planning can modify capacity by subcontracting, adding or selling equipment, and adding or reducing shifts. It can use capacity by building or using inventory, more or improved training, and adding or reducing personnel."},{"type":"p","text":"Short-range planning (scheduling) finds it difficult to modify capacity. It uses capacity by scheduling jobs, scheduling personnel, and allocating machinery."},{"type":"h","text":"Design capacity, effective capacity and actual output"},{"type":"p","text":"Design capacity is the maximum theoretical output of a system, normally expressed as a rate. Lecture examples of rates: beds (a hospital), active members (a church), or billable hours (a CPA firm). Table S7.1 adds: ideal conditions exist during the time that the system is available."},{"type":"p","text":"Effective capacity is the capacity a firm expects to achieve given current operating constraints. It is often lower than design capacity. Table S7.1 defines it as design capacity minus lost output because of planned resource unavailability (for example preventive maintenance, machine setups or changeovers, changes in product mix, scheduled breaks)."},{"type":"p","text":"Actual output is effective capacity minus lost output during unplanned resource idleness (for example absenteeism, machine breakdowns, unavailable parts, quality problems)."},{"type":"h","text":"The two formulas"},{"type":"p","text":"Utilisation is the percent of design capacity actually achieved: Utilisation = Actual output / Design capacity."},{"type":"p","text":"Efficiency is the percent of effective capacity actually achieved: Efficiency = Actual output / Effective capacity."},{"type":"p","text":"The formula slide writes these as ratios. The worked bakery example then reports them as percentages. This tool will ask for percentages and will accept a small rounding difference of 0.5 percentage points, because the slides do not state a rounding rule."},{"type":"worked","title":"Frito-Lay example from Table S7.1","steps":["Machines are designed to produce 1,000 bags of chips per hour, and the plant operates 16 hours a day. Design capacity = 1,000 × 16 = 16,000 bags/day.","The firm loses 3 hours of output a day to planned unavailability (0.5 hours preventive maintenance, 1 hour employee breaks, 1.5 hours setting up machines). Effective capacity = 16,000 − (1,000 × 3) = 16,000 − 3,000 = 13,000 bags/day.","On average, machines are not running 1 hour a day because of late parts and breakdowns (unplanned). Actual output = 13,000 − 1,000 = 12,000 bags/day."]},{"type":"worked","title":"Bakery example from the lecture","steps":["Given: actual production last week = 148,000 rolls; effective capacity = 175,000 rolls; design rate = 1,200 rolls per hour; the bakery operates 7 days a week, with three 8-hour shifts.","Design capacity for the week = (7 × 3 × 8) × 1,200 = 168 × 1,200 = 201,600 rolls.","Utilisation = 148,000 / 201,600 = 73.4%.","Efficiency = 148,000 / 175,000 = 84.6%."]},{"type":"h","text":"Capacity, demand and services"},{"type":"p","text":"Capacity decisions affect all ten operations decisions and must be integrated into the organisation’s mission and strategy. Four special considerations are: forecast demand accurately; match technology increments and sales volume; find the optimum operating size (volume); and build for change (flexibility in facilities and equipment)."},{"type":"p","text":"If demand exceeds capacity, managers may curtail demand by raising prices or scheduling longer lead times; the long-term solution is to increase capacity. If capacity exceeds demand, they may stimulate the market or change the product. For seasonal demand, they may produce products with complementary demand patterns."},{"type":"p","text":"Tactics for matching capacity to demand include staffing changes, adjusting equipment (buy more, or sell or lease out what you have), improving processes, redesigning products, adding process flexibility, and closing facilities."},{"type":"p","text":"In services, scheduling customers is demand management, and scheduling the workforce is capacity management. Demand-management examples: appointments (doctors’ and lawyers’ offices); reservations (rental cars, hotels and some restaurants); and the FCFS rule (retail shops, a post office, or a fast-food restaurant). When managing demand is not feasible, capacity is managed with full-time, temporary or part-time staff."}],"scm":[{"type":"h","text":"What the supply chain is for"},{"type":"p","text":"The objective of supply chain management, the lecture says, is to structure the supply chain to maximise its competitive advantage and benefits to the ultimate consumer."},{"type":"p","text":"It is the coordination of all supply-chain activities, starting with raw materials and ending with a satisfied customer. It includes suppliers, manufacturers and/or service providers, distributors, wholesalers, retailers and final customers. A large portion of sales dollars is spent on purchases. Good supply-chain work can improve innovation, speed design and reduce costs."},{"type":"p","text":"Table 11.1 shows supply-chain costs as a percentage of sales in various industries. For example, petroleum 79, automobiles 67, metals 65, restaurants 35. Even a small café is spending a large share of its takings on what it buys in — coffee, milk, cups — which is why the chain of suppliers matters."},{"type":"h","text":"How competitive strategy shapes the chain"},{"type":"p","text":"Table 11.2 links the three strategies you already know to supply-chain choices."},{"type":"p","text":"Under a low-cost strategy, primary supplier selection is about cost; inventory is minimised to hold down costs; distribution uses inexpensive transport and discount distributors or retailers; product design maximises performance and minimises cost."},{"type":"p","text":"Under a response strategy, suppliers are chosen for capacity, speed and flexibility; buffer stocks are used to ensure speedy supply; distribution uses fast transport and premium customer service; product design aims for low setup time and rapid production ramp-up."},{"type":"p","text":"Under a differentiation strategy, suppliers need product-development skills, a willingness to share information, and the ability to jointly and rapidly develop products; inventory is minimised to avoid obsolescence; the distribution network gathers market-research data and uses a knowledgeable sales staff; product design is modular to aid differentiation."},{"type":"h","text":"Sourcing"},{"type":"p","text":"A make-or-buy decision is the choice between obtaining products and services externally and producing them internally. Outsourcing transfers traditional internal activities and resources to outside vendors, seeking efficiency in specialisation and a focus on core competencies."},{"type":"p","text":"The lecture lists six sourcing strategies: many suppliers; few suppliers; vertical integration; joint ventures; keiretsu networks; and virtual companies."},{"type":"p","text":"Many suppliers is commonly used for commodity products. Purchasing is typically based on price. Suppliers compete with one another. The supplier is responsible for technology, expertise, forecasting, cost, quality and delivery."},{"type":"p","text":"With few suppliers, the buyer forms long-term relationships with fewer firms. That can create value through economies of scale and learning-curve improvements. Suppliers are more willing to join JIT programmes and contribute design and technological expertise. But the cost of changing suppliers is huge, and trade secrets and other alliances may be at risk."},{"type":"flag","text":"Vertical integration, joint ventures, keiretsu networks and virtual companies are named on the “six sourcing strategies” slide and are not explained in the uploaded lecture. This tool will only expect you to know that they are on the list — not details the slides do not give."},{"type":"h","text":"Risk and mitigation"},{"type":"p","text":"More reliance on supply chains means more risk. Fewer suppliers increase dependence. Risk is compounded by globalisation and logistical complexity, and includes vendor reliability and quality risks plus political and currency risks."},{"type":"p","text":"Headline tactics: research and assess possible risks; innovative planning; reduce potential disruptions; prepare responses to negative events; build flexible, secure supply chains; and use a diversified supplier base."},{"type":"p","text":"Table 11.3 then pairs specific risks with tactics and examples — for instance, supplier failure to deliver is reduced with multiple suppliers, effective contracts with penalties, subcontractors on retainer and preplanning (the McDonald’s Russia example); natural catastrophes are reduced with insurance, alternate sourcing and cross-country diversification (Toyota seeking at least two suppliers in different regions for each component). Use the practice questions to rehearse those pairings from the table."}],"qm":[{"type":"h","text":"Quality and strategy"},{"type":"p","text":"Managing quality supports differentiation, low-cost and response strategies. Quality helps firms increase sales and reduce costs, which improves profits."},{"type":"p","text":"Sales gains come via improved response, flexible pricing and an improved reputation. Reduced costs come via increased productivity, lower rework and scrap costs, and lower warranty costs."},{"type":"p","text":"The operations manager’s objective is to build a total quality management system that identifies and satisfies customer needs."},{"type":"h","text":"Three views of quality"},{"type":"p","text":"User-based: better performance, more features. Manufacturing-based: conformance to standards, making it right the first time. Product-based: specific and measurable attributes of the product. A phone can be “high quality” because users love its features, because it was built to spec, or because battery life measures well — those are three different views."},{"type":"p","text":"Quality also has implications for company reputation (perception of new products, employment practices, supplier relations), product liability (reducing risk), and global competition."},{"type":"h","text":"Costs of quality"},{"type":"p","text":"The lecture lists four costs. Prevention costs: reducing the potential for defects. Appraisal costs: evaluating products, parts and services. Internal failure costs: producing defective parts or service before delivery. External failure costs: defects discovered after delivery."},{"type":"flag","text":"The slide is titled “Costs of Quality (1 of 2)”, but there is no part 2 in the uploaded deck. This tool only uses the four costs that are listed."},{"type":"h","text":"Total quality management"},{"type":"p","text":"TQM covers the entire organisation from supplier to customer. It stresses a continuing company-wide drive toward excellence in all aspects of products and services that are important to the customer."},{"type":"p","text":"The seven concepts of TQM listed are: continuous improvement; Six Sigma; employee empowerment; benchmarking; just-in-time (JIT); Taguchi concepts; and knowledge of TQM tools."},{"type":"flag","text":"Six Sigma, benchmarking and Taguchi concepts are named on that list and are not explained further in the uploaded slides. This tool will not invent definitions for them."},{"type":"p","text":"Continuous improvement is a never-ending process covering people, equipment, suppliers, materials and procedures. Every operation can be improved. Kaizen describes the ongoing process of unending improvement. TQM and zero defects are also used to describe continuous improvement."},{"type":"p","text":"The PDCA cycle in Figure 6.3, in the lecture’s own words, is: 1. Plan — Identify the problem and make a plan. 2. Do — Test the plan. 3. Check — Is the plan working? 4. Act — Implement the plan, document."},{"type":"p","text":"Employee empowerment means getting employees involved in product and process improvements. The lecture states that 85% of quality problems are due to materials and process. Techniques include communication networks that include employees, open supportive supervisors, moving responsibility to employees, building high morale, and formal team structures."},{"type":"p","text":"JIT is a “pull” system of production scheduling, including supply management: production only when signalled. It allows lower inventory, and inventory both costs money and hides process and material problems. JIT cuts the cost of quality and improves quality; better quality then means less inventory and an easier-to-employ JIT system."},{"type":"h","text":"Tools, inspection and poka-yoke"},{"type":"p","text":"Tools for generating ideas: check sheet, scatter diagram, cause-and-effect diagram. Tools to organise the data: Pareto chart, flowchart (process diagram). Tools for identifying problems: histogram, statistical process control chart."},{"type":"flag","text":"These seven tools are named and grouped, but the slides do not work any examples or calculations. A learning objective says “use” the tools; this tool will only test the names and groups that the lecture actually gives."},{"type":"p","text":"Inspection examines items to see if they are good or defective. It can detect a defective product, but it does not correct deficiencies in the process or product, and it is expensive. Operations needs to know the critical points: when to inspect, and where in the process to inspect."},{"type":"p","text":"The seven listed points are: at the supplier’s plant while the supplier is producing; at your facility upon receipt of goods; before costly or irreversible processes; during the step-by-step production process; when production or service is complete; before delivery to your customer; and at the point of customer contact."},{"type":"p","text":"Source inspection (source control) treats the next step in the process as your customer, and aims to ensure a perfect product to that customer. Poka-yoke is the concept of foolproof devices or techniques designed to pass only acceptable products. Checklists ensure consistency and completeness."},{"type":"p","text":"Everyday picture: a café that uses a lid that will only clip onto the correct cup size is using a poka-yoke idea. A closing-time checklist (fridges shut, till counted, door locked) is the lecture’s “checklist” idea in student life."}]},"questions":[{"id":"om-d1","topic":"om","bank":"diagnose","type":"tf","stem":"A mission statement tells an organisation how to get there.","options":["True","False"],"answer":1,"explainRight":"The lecture says mission statements tell an organisation where it is going. The strategy tells it how to get there.","explainWrong":{"0":"That would describe the strategy, not the mission. Mission = where it is going; strategy = how to get there."}},{"id":"om-d2","topic":"om","bank":"diagnose","type":"mc","stem":"Which of the following is one of the three essential organisational functions named in the lecture?","options":["Human resources as a top-level essential function alongside only marketing","Marketing — generates demand","Research and development — invents patents","Purchasing — places every order"],"answer":1,"explainRight":"The three essential functions are marketing (generates demand), production/operations (creates the product), and finance/accounting (tracks performance, pays bills, collects money).","explainWrong":{"0":"Human resources appears later among the ten strategic decisions (job design), not as one of the three essential functions.","2":"R\u0026D is not one of the three essential functions listed.","3":"Purchasing is not listed as one of the three essential functions."}},{"id":"om-d3","topic":"om","bank":"diagnose","type":"mc","stem":"Competing on cost, according to the lecture, means:","options":["Selling the lowest quality so that the price can be the lowest","Providing the maximum value as perceived by the customer, which does not imply low quality","Never advertising, so overhead stays at zero","Matching unique customer experiences like a theme park"],"answer":1,"explainRight":"The slide says: provide the maximum value as perceived by the customer. It does not imply low quality. Southwest and Walmart are the examples.","explainWrong":{"0":"The lecture is explicit that cost leadership does not imply low quality.","2":"That is not the lecture definition. Walmart and Southwest are about perceived value and efficient operations, not “never advertise”.","3":"A unique theme-park experience is the lecture’s example of experience differentiation, not cost leadership."}},{"id":"om-d4","topic":"om","bank":"diagnose","type":"tf","stem":"One of the lecture’s tangible reasons to globalise is to reduce costs (labour, taxes, tariffs, and so on).","options":["True","False"],"answer":0,"explainRight":"Yes. “Reduce costs (labour, taxes, tariffs, etc.)” is the first tangible reason on the lecture list.","explainWrong":{"1":"It is on the list of tangible reasons to globalise."}},{"id":"om-p101","topic":"om","bank":"practise","type":"tf","stem":"Operations management involves the design, operation and improvement of the systems that create and deliver an organisation’s products and services.","options":["True","False"],"answer":0,"explainRight":"That is the lecture definition (the slide also uses the word “disciple”).","explainWrong":{"1":"That wording is the lecture definition of OM."},"level":1},{"id":"om-p102","topic":"om","bank":"practise","type":"tf","stem":"Finance and accounting’s essential-function role, in the lecture, is to generate demand.","options":["True","False"],"answer":1,"explainRight":"Generating demand is marketing’s role. Finance/accounting tracks how well the organisation is doing, pays bills and collects the money.","explainWrong":{"0":"Generating demand is marketing. Finance/accounting tracks performance, pays bills and collects money."},"level":1},{"id":"om-p103","topic":"om","bank":"practise","type":"mc","stem":"Which set is the lecture’s list of basic management functions?","options":["Planning, organising, staffing, leading, controlling","Hiring, planning, marketing, controlling","Planning, budgeting, hiring, selling, inspecting","Designing, globalising, outsourcing, inspecting"],"answer":0,"explainRight":"The lecture lists planning, organising, staffing, leading and controlling.","explainWrong":{"1":"Hiring is not on the list (staffing is). Marketing is a function of the firm, not one of these five basic management functions.","2":"Budgeting, hiring, selling and inspecting are not the five named functions.","3":"Those words are not the basic management functions list."},"level":1},{"id":"om-p104","topic":"om","bank":"practise","type":"mc","stem":"Which of the following is one of the ten strategic operations decisions listed in the lecture?","options":["Advertising slogan design","Inventory management","Setting the corporate share price","Writing the firm’s tax return"],"answer":1,"explainRight":"Inventory management is on the list of ten strategic decisions, along with quality, capacity, location, layout, supply-chain management, scheduling, maintenance and others.","explainWrong":{"0":"Advertising slogan design is not on the ten-decision list.","2":"Share price is not one of the ten operations decisions.","3":"Tax returns sit with finance/accounting, not on the ten OM decisions list."},"level":1},{"id":"om-p201","topic":"om","bank":"practise","type":"mc","stem":"A student haircut is produced and consumed at the same time and cannot be stored for later. In the lecture’s goods-versus-services table, this is a characteristic of:","options":["Goods, because hair has residual value","Services","Both goods and services equally, in every case","Neither — the lecture says all products are inventory"],"answer":1,"explainRight":"Services are “produced and consumed simultaneously”, with the beauty-salon haircut as the lecture’s example. Goods can usually be kept in inventory.","explainWrong":{"0":"The haircut example is used for services, not goods. Residual value is listed as a characteristic of goods.","2":"The lecture contrasts the two; simultaneous production and consumption is listed under services.","3":"The lecture says goods can usually be kept in inventory; services such as a haircut are consumed as they are produced."},"level":2},{"id":"om-p202","topic":"om","bank":"practise","type":"tf","stem":"In the lecture’s commercial-bank organisation chart, teller scheduling sits under Operations.","options":["True","False"],"answer":0,"explainRight":"Yes. Bank operations includes teller scheduling, cheque clearing, collection, transaction processing, facilities design/layout, vault operations, maintenance and security.","explainWrong":{"1":"Teller scheduling is listed under Operations in the commercial-bank chart."},"level":2},{"id":"om-p203","topic":"om","bank":"practise","type":"mc","stem":"A local café aims to be “better, or at least different”, with a unique dining experience rather than the lowest price. Which of the lecture’s three strategic approaches is that?","options":["Cost leadership","Differentiation","Response as reliability of the weekly schedule only","Outsourcing"],"answer":1,"explainRight":"Differentiation is “better, or at least different”. The lecture’s Hard Rock Cafe example is a dining experience; uniqueness can go beyond physical characteristics to everything that shapes the customer’s view of value.","explainWrong":{"0":"Cost leadership is “cheaper” and is about maximum perceived value, not a unique dining experience.","2":"Response includes flexibility, reliability and quickness, but a unique dining experience is the differentiation example (Hard Rock Cafe).","3":"Outsourcing is a supply-chain topic, not one of the three competitive approaches in the intro lecture."},"level":2},{"id":"om-p204","topic":"om","bank":"practise","type":"tf","stem":"Attracting and retaining global talent is listed as an intangible reason to globalise.","options":["True","False"],"answer":0,"explainRight":"Yes. Reasons 5 and 6 are the intangible ones: learn to improve operations, and attract and retain global talent.","explainWrong":{"1":"It is reason 6, grouped as intangible on the lecture slide."},"level":2},{"id":"om-p301","topic":"om","bank":"practise","type":"mc","stem":"The lecture uses Walt Disney Magic Kingdom as an example of:","options":["Cost leadership through secondary locations","Experience differentiation","A long-range capacity plan","A keiretsu network"],"answer":1,"explainRight":"Under competing on differentiation, the lecture lists “Walt Disney Magic Kingdom – experience differentiation”.","explainWrong":{"0":"Secondary airports are the Southwest (cost leadership) example, not Disney.","2":"The Disney mention is in the differentiation slides, not the capacity chapter.","3":"Keiretsu networks are only named later in the supply-chain lecture, and not in connection with Disney."},"level":3},{"id":"om-p302","topic":"om","bank":"practise","type":"tf","stem":"Competing on response, in the lecture, includes flexibility, reliability of meeting schedules, and quickness in design, production and delivery.","options":["True","False"],"answer":0,"explainRight":"Those are the three bullets on the “Competing on Response” slide, with Hewlett-Packard, the German machine industry, and Johnson Electric / Pizza Hut as the respective examples.","explainWrong":{"1":"All three — flexibility, reliability and quickness — are part of competing on response."},"level":3},{"id":"om-p303","topic":"om","bank":"practise","type":"mc","stem":"Boeing’s 787 is used in the lecture to illustrate:","options":["A purely domestic sales and supply chain","Worldwide sales and supply chain as part of a global view of operations","A market survey forecasting method","Mass customisation at Dell"],"answer":1,"explainRight":"Under global strategies, the lecture says “Boeing 787 – sales and supply chain are worldwide”.","explainWrong":{"0":"The point of the example is that sales and the supply chain are worldwide, not purely domestic.","2":"Market surveys belong to the forecasting lecture.","3":"Dell is the mass-customisation example in the process-strategy lecture."},"level":3},{"id":"om-p304","topic":"om","bank":"practise","type":"tf","stem":"The lecture’s sample operations-management mission is: to produce products consistent with the company’s mission as the worldwide low-cost manufacturer.","options":["True","False"],"answer":0,"explainRight":"That is the “sample operations management mission” on the sample-missions slide, paired with a microwave-communications company mission.","explainWrong":{"1":"That wording is the lecture’s sample OM mission."},"level":3},{"id":"om-p401","topic":"om","bank":"practise","type":"mc","stem":"Which of the following is not one of the lecture’s basic management functions?","options":["Organising","Planning","Hiring","Controlling"],"answer":2,"explainRight":"The five functions are planning, organising, staffing, leading and controlling. Hiring is not on that list.","explainWrong":{"0":"Organising is on the list.","1":"Planning is on the list.","3":"Controlling is on the list."},"level":4},{"id":"om-p402","topic":"om","bank":"practise","type":"tf","stem":"An effective operations management effort must have a strategy so it knows where it is going and a mission so it knows how to get there.","options":["True","False"],"answer":1,"explainRight":"The lecture assigns those roles the other way round: the mission tells the organisation where it is going, and the strategy tells it how to get there.","explainWrong":{"0":"That swaps the lecture definitions. Mission = where it is going; strategy = how to get there."},"level":4},{"id":"om-p403","topic":"om","bank":"practise","type":"mc","stem":"“Experience differentiation”, as used in the intro lecture, is illustrated by:","options":["Walmart’s low distribution costs","Safeskin gloves only, as a low-cost medical supply","Walt Disney Magic Kingdom","A firm that isolates the customer from every service encounter, according to a definition the intro lecture never gives"],"answer":2,"explainRight":"The lecture lists “Walt Disney Magic Kingdom – experience differentiation” under competing on differentiation. It does not give a longer formal definition of the term.","explainWrong":{"0":"Walmart is a cost-leadership example.","1":"Safeskin gloves are “leading edge products” under differentiation, not a low-cost example, and not labelled experience differentiation.","3":"The intro lecture does not define experience differentiation as isolating the customer. It simply uses the Disney (and Hard Rock) experience examples."},"level":4},{"id":"om-p404","topic":"om","bank":"practise","type":"tf","stem":"Improving the supply chain is one of the lecture’s reasons for global operations.","options":["True","False"],"answer":0,"explainRight":"“Improve supply chain” is the second tangible reason to globalise. The lecture also uses Boeing, Sony and Benetton as global supply-chain examples.","explainWrong":{"1":"It is on the list of reasons to globalise."},"level":4},{"id":"om-m1","topic":"om","bank":"mock","type":"mc","stem":"The strategy, in the lecture, is:","options":["The organisation’s purpose for being, which answers what it contributes to society","The action plan to achieve the mission — how the organisation gets there","A list of reasons to avoid weaknesses only, with no link to the mission","The same thing as the mission statement"],"answer":1,"explainRight":"Strategy is the action plan to achieve the mission; it tells the organisation how to get there. The mission is the purpose for being and tells where it is going.","explainWrong":{"0":"That describes the mission, not the strategy.","2":"Strategies do use strengths and opportunities and avoid weaknesses, but the headline definition is the action plan to achieve the mission.","3":"The lecture treats mission and strategy as distinct."}},{"id":"om-m2","topic":"om","bank":"mock","type":"tf","stem":"Cost leadership, as defined in the lecture, implies low quality.","options":["True","False"],"answer":1,"explainRight":"The slide says cost leadership provides maximum value as perceived by the customer and “does not imply low quality”.","explainWrong":{"0":"The lecture is explicit that it does not imply low quality."}},{"id":"om-m3","topic":"om","bank":"mock","type":"mc","stem":"Which of the following is a service characteristic in the lecture’s comparison table?","options":["The product can usually be kept in inventory","Quality is often easy to evaluate, like the strength of a bolt","Produced and consumed simultaneously","The product typically is produced at a fixed facility and often has residual value"],"answer":2,"explainRight":"“Produced and consumed simultaneously” (the haircut example) is listed under characteristics of services.","explainWrong":{"0":"Inventory is listed under goods.","1":"Easy evaluation of quality (strength of a bolt) is listed under goods. Service quality may be hard to evaluate.","3":"A fixed facility and residual value are listed under goods."}},{"id":"fc-d1","topic":"fc","bank":"diagnose","type":"tf","stem":"Short-term forecasts tend to be more accurate than longer-term forecasts, according to the lecture.","options":["True","False"],"answer":0,"explainRight":"The lecture lists this as the third distinguishing difference: short-term forecasts tend to be more accurate than longer-term forecasts.","explainWrong":{"1":"The lecture says the opposite of a “long-range is more accurate” claim: short-term forecasts tend to be more accurate."}},{"id":"fc-d2","topic":"fc","bank":"diagnose","type":"mc","stem":"A forecast used for facility location and capital expenditure, looking 3+ years ahead, is a:","options":["Short-range forecast, generally less than 3 months","Medium-range forecast of 3 months to 3 years","Long-range forecast","Naive forecast only, by definition"],"answer":2,"explainRight":"Long-range forecasts are 3+ years and are used for new product planning, facility location, capital expenditures, and research and development.","explainWrong":{"0":"Short-range is up to 1 year, generally less than 3 months, and is used for purchasing, scheduling, workforce and production levels — not facility location.","1":"Medium-range (3 months to 3 years) is for sales and production planning and budgeting.","3":"Naive is a method, not a time horizon."}},{"id":"fc-d3","topic":"fc","bank":"diagnose","type":"mc","stem":"The first of the lecture’s seven steps in forecasting is:","options":["Make the forecast","Determine the use of the forecast","Select the forecasting model(s)","Validate and implement the results"],"answer":1,"explainRight":"Step 1 is: determine the use of the forecast. Making the forecast is step 6; selecting the model(s) is step 4; validate and implement is step 7.","explainWrong":{"0":"Making the forecast is step 6, not step 1.","2":"Selecting the model(s) is step 4.","3":"Validate and implement the results is step 7."}},{"id":"fc-d4","topic":"fc","bank":"diagnose","type":"tf","stem":"The naive approach assumes that demand in the next period is the same as demand in the most recent period.","options":["True","False"],"answer":0,"explainRight":"That is the lecture definition. The example is: if January sales were 68, then February sales will be 68.","explainWrong":{"1":"That is exactly the naive rule given on the slide."}},{"id":"fc-p101","topic":"fc","bank":"practise","type":"tf","stem":"Forecasting is the process of predicting a future event, and the lecture calls it the underlying basis of all business decisions about production, inventory, personnel and facilities.","options":["True","False"],"answer":0,"explainRight":"Both parts are on the “What is Forecasting?” slide.","explainWrong":{"1":"That is the lecture definition and the “underlying basis” claim."},"level":1},{"id":"fc-p102","topic":"fc","bank":"practise","type":"mc","stem":"A short-range forecast, as defined in the lecture, is:","options":["3+ years ahead","3 months to 3 years","Up to 1 year, generally less than 3 months","Always exactly one week"],"answer":2,"explainRight":"Short-range: up to 1 year, generally less than 3 months. Uses include purchasing, job scheduling, workforce levels, job assignments and production levels.","explainWrong":{"0":"That is the long-range horizon.","1":"That is the medium-range horizon.","3":"The lecture does not define short-range as always one week."},"level":1},{"id":"fc-p103","topic":"fc","bank":"practise","type":"mc","stem":"Which type of forecast “predicts sales of existing products and services”?","options":["Economic forecasts","Technological forecasts","Demand forecasts","Delphi forecasts only"],"answer":2,"explainRight":"Demand forecasts predict sales of existing products and services. Economic forecasts address the business cycle; technological forecasts predict the rate of technological progress.","explainWrong":{"0":"Economic forecasts address the business cycle — inflation, money supply, housing starts, and so on.","1":"Technological forecasts predict the rate of technological progress and affect new product development.","3":"Delphi is a qualitative method, not one of the three forecast types on that slide."},"level":1},{"id":"fc-p104","topic":"fc","bank":"practise","type":"mc","stem":"On the quantitative-approaches slide, linear regression is grouped as:","options":["A time-series model, with the naive approach","An associative model","A qualitative method","A Delphi participant type"],"answer":1,"explainRight":"Naive approach, moving averages, exponential smoothing and trend projection are braced as time-series models. Linear regression is braced as an associative model.","explainWrong":{"0":"The time-series brace covers items 1–4, not linear regression.","2":"Linear regression is listed under quantitative approaches, as an associative model.","3":"Decision makers, staff and respondents are the Delphi participants."},"level":1},{"id":"fc-p201","topic":"fc","bank":"practise","type":"mc","stem":"A brand-new campus start-up has almost no sales history and wants views from a small group of senior managers, combined if needed with a statistical model, quite quickly. Which qualitative method is that closest to?","options":["Market survey only, because customers must be asked","Jury of executive opinion","Sales force composite, because each sales rep is required","Product-focus process strategy"],"answer":1,"explainRight":"A jury of executive opinion involves a small group of high-level experts and managers, can combine managerial experience with statistical models, and is relatively quick. It has a ‘group-think’ disadvantage.","explainWrong":{"0":"A market survey asks customers about purchasing plans, not a small group of senior managers.","2":"A sales force composite aggregates each salesperson’s projection.","3":"Process strategy is a different topic."},"level":2},{"id":"fc-p202","topic":"fc","bank":"practise","type":"tf","stem":"The Delphi method is an iterative group process that continues until consensus is reached, and the lecture names three types of participant: decision makers, staff and respondents.","options":["True","False"],"answer":0,"explainRight":"Both points are on the Delphi slide.","explainWrong":{"1":"That is the lecture description of Delphi."},"level":2},{"id":"fc-p203","topic":"fc","bank":"practise","type":"tf","stem":"A sales force composite and a market survey may both be overly optimistic, according to the lecture.","options":["True","False"],"answer":0,"explainRight":"Both detail slides include “may be overly optimistic”. A market survey also warns that what consumers say and what they actually do may be different.","explainWrong":{"1":"The lecture says this about both methods."},"level":2},{"id":"fc-p204","topic":"fc","bank":"practise","type":"mc","stem":"A seasonal component, as defined in the lecture, occurs:","options":["Over multiple years, driven by the business cycle","Within a single year, as a regular up-and-down pattern","Only randomly, and it never repeats","Only in long-range economic forecasts"],"answer":1,"explainRight":"Seasonal: regular up-and-down pattern, due to weather, customs and so on, occurring within a single year. Cyclical movements last multiple years and are affected by the business cycle.","explainWrong":{"0":"Multiple years and the business cycle describe the cyclical component.","2":"Random is erratic, short and non-repeating. Seasonal is a regular pattern.","3":"Seasonality is a time-series component, not restricted to long-range economic forecasts."},"level":2},{"id":"fc-p301","topic":"fc","bank":"practise","type":"mc","stem":"According to the lecture’s season-length table, a year divided into months has how many “seasons” in the pattern?","options":["4","7","12","52"],"answer":2,"explainRight":"The table row “Year / Month” has 12 seasons in the pattern. 4 is year/quarter, 7 is week/day, 52 is year/week.","explainWrong":{"0":"4 is the number of quarters in a year.","1":"7 is the number of days in a week.","3":"52 is the number of weeks in a year."},"level":3},{"id":"fc-p302","topic":"fc","bank":"practise","type":"tf","stem":"A time-series forecast, in the lecture, is based only on past values, and assumes that factors influencing the past and present will continue to influence the future.","options":["True","False"],"answer":0,"explainRight":"Those are the two core bullets on the time-series forecasting slide.","explainWrong":{"1":"That is the lecture description of time-series forecasting."},"level":3},{"id":"fc-p303","topic":"fc","bank":"practise","type":"mc","stem":"If January sales were 68, the lecture’s naive approach says February sales will be:","options":["136","0","68","Unable to say, because the naive formula was not given"],"answer":2,"explainRight":"The lecture’s example is worded: “If January sales were 68, then February sales will be 68.” The rule is that next period equals the most recent period. No further algebra is written.","explainWrong":{"0":"The naive rule copies the last period; it does not double it.","1":"The naive forecast is 68, not zero.","3":"The lecture does give this worked example in words, even though it does not write an algebraic formula."},"level":3},{"id":"fc-p304","topic":"fc","bank":"practise","type":"mc","stem":"Which step of the seven-step process is “select the forecasting model(s)”?","options":["Step 1","Step 4","Step 6","Step 7"],"answer":1,"explainRight":"The seven steps in order: (1) determine the use; (2) select the items; (3) determine the time horizon; (4) select the forecasting model(s); (5) gather the data; (6) make the forecast; (7) validate and implement.","explainWrong":{"0":"Step 1 is determine the use of the forecast.","2":"Step 6 is make the forecast.","3":"Step 7 is validate and implement the results."},"level":3},{"id":"fc-p401","topic":"fc","bank":"practise","type":"mc","stem":"The fundamental contrast the lecture draws between a seasonal pattern and a cyclical pattern includes which of the following, as actually stated on the slides?","options":["Seasonal patterns occur within a single year; cyclical movements are of multiple years’ duration","The slides state that the only difference is the magnitude of the variation","The slides state that random variation is a type of seasonality","The slides give a formula that converts a cycle into a season"],"answer":0,"explainRight":"Seasonal “occurs within a single year”. Cyclical has “multiple years duration” and is affected by the business cycle, political and economic factors, and often has causal or associative relationships. The slides do not call this “the fundamental difference” in those exact exam words, but the duration contrast is clearly stated.","explainWrong":{"1":"The slides do not say that magnitude of variation is the only difference.","2":"Random is a separate component: erratic, short and non-repeating.","3":"No such formula is given."},"level":4},{"id":"fc-p402","topic":"fc","bank":"practise","type":"tf","stem":"Long-range forecasts are more accurate than short-range forecasts.","options":["True","False"],"answer":1,"explainRight":"The lecture says short-term forecasts tend to be more accurate than longer-term forecasts.","explainWrong":{"0":"That statement reverses the lecture."},"level":4},{"id":"fc-p403","topic":"fc","bank":"practise","type":"mc","stem":"A local bakery says next Monday’s sales will be the same as this Monday’s, because sales have been consistent. Which approach described in the lecture is that?","options":["Delphi method","Market survey","The naive approach","Technological forecasting of the business cycle"],"answer":2,"explainRight":"The naive approach assumes demand in the next period equals demand in the most recent period (January 68, so February 68). A bakery copying last Monday is the same rule.","explainWrong":{"0":"Delphi is an iterative expert panel until consensus.","1":"A market survey asks customers about their plans.","3":"Technological forecasts predict the rate of technological progress; economic forecasts address the business cycle. Neither is this Monday-to-Monday copy."},"level":4},{"id":"fc-p404","topic":"fc","bank":"practise","type":"mc","stem":"Which step involves choosing the model family — for example a time-series model or a qualitative approach?","options":["Validate and implement the results","Select the forecasting model(s)","Determine the time horizon","Gather the data needed to make the forecast"],"answer":1,"explainRight":"Step 4 is “select the forecasting model(s)”. That is the step at which you choose among methods such as the qualitative approaches or the time-series models named on the overview slide.","explainWrong":{"0":"That is step 7, after the forecast has been made.","2":"Determining the time horizon is step 3 (short, medium or long range).","3":"Gathering data is step 5."},"level":4},{"id":"fc-m1","topic":"fc","bank":"mock","type":"mc","stem":"Medium-range forecasts, in the lecture, cover:","options":["Generally less than 3 months, for job scheduling","3 months to 3 years, for sales and production planning and budgeting","3+ years, for capital expenditures","Only one day, for a call-centre roster"],"answer":1,"explainRight":"Medium-range: 3 months to 3 years; sales and production planning, budgeting.","explainWrong":{"0":"That is short-range.","2":"That is long-range.","3":"The lecture does not define medium-range as one day."}},{"id":"fc-m2","topic":"fc","bank":"mock","type":"tf","stem":"Qualitative methods are used when the situation is vague and little data exist, such as new products or new technology.","options":["True","False"],"answer":0,"explainRight":"That is the qualitative-methods slide, which also says they involve intuition and experience.","explainWrong":{"1":"That is the lecture description of when to use qualitative methods."}},{"id":"fc-m3","topic":"fc","bank":"mock","type":"mc","stem":"A “group-think” disadvantage is listed for which qualitative method?","options":["Market survey","Delphi method","Jury of executive opinion","Naive approach"],"answer":2,"explainRight":"The jury of executive opinion slide lists “‘Group-think’ disadvantage”. The naive approach is quantitative (a time-series model).","explainWrong":{"0":"A market survey’s warnings are that words and deeds may differ, and answers may be overly optimistic.","1":"Delphi is described as iterating until consensus; group-think is not the labelled disadvantage there.","3":"Naive is a quantitative time-series approach, not a qualitative method."}},{"id":"pd-d1","topic":"pd","bank":"diagnose","type":"mc","stem":"The objective of the product decision, as stated in the lecture, is to:","options":["Minimise the number of products in every market, with no reference to customers","Develop and implement a product strategy that meets the demands of the marketplace with a competitive advantage","Inspect finished goods only, after delivery","Outsource all design work, always"],"answer":1,"explainRight":"That sentence is the product-decision objective on the slide.","explainWrong":{"0":"The lecture ties the product strategy to marketplace demands and competitive advantage, not to “minimise the number of products” as the objective.","2":"Inspection belongs to the quality lecture, and is not the product-decision objective.","3":"The lecture does not state that all design must be outsourced."}},{"id":"pd-d2","topic":"pd","bank":"diagnose","type":"mc","stem":"Which phase order does Figure 5.2 use for the product life cycle?","options":["Decline, Maturity, Growth, Introduction","Introduction, Growth, Maturity, Decline","Growth, Introduction, Decline, Maturity","Maturity, Introduction, Decline, Growth"],"answer":1,"explainRight":"Figure 5.2 labels Introduction, then Growth, then Maturity, then Decline.","explainWrong":{"0":"That is the reverse of the figure.","2":"Introduction comes first in the figure, not Growth.","3":"That is not the order on Figure 5.2."}},{"id":"pd-d3","topic":"pd","bank":"diagnose","type":"tf","stem":"Quality function deployment (QFD) is used to determine what will satisfy the customer and to translate those desires into the target design.","options":["True","False"],"answer":0,"explainRight":"Those are the two QFD bullets on the lecture slide.","explainWrong":{"1":"That is the lecture definition of QFD."}},{"id":"pd-d4","topic":"pd","bank":"diagnose","type":"mc","stem":"Taco Bell is used in the lecture as an example of which product strategy option?","options":["Differentiation","Low cost","Rapid response","Process focus at a hospital"],"answer":1,"explainRight":"Product strategy options: differentiation — Shouldice Hospital; low cost — Taco Bell; rapid response — Toyota.","explainWrong":{"0":"Shouldice Hospital is the differentiation example.","2":"Toyota is the rapid-response example.","3":"Arnold Palmer Hospital is the process-focus example in the process-strategy lecture, not a Taco Bell product-strategy example."}},{"id":"pd-p101","topic":"pd","bank":"practise","type":"tf","stem":"A product life cycle, the lecture says, may be any length from a few days to decades.","options":["True","False"],"answer":0,"explainRight":"That is the opening bullet on the product life cycle slide.","explainWrong":{"1":"The lecture says it may be any length from a few days to decades."},"level":1},{"id":"pd-p102","topic":"pd","bank":"practise","type":"mc","stem":"Shouldice Hospital is the lecture’s product-strategy example of:","options":["Low cost","Rapid response","Differentiation","Mass customisation at Dell"],"answer":2,"explainRight":"Differentiation — Shouldice Hospital; low cost — Taco Bell; rapid response — Toyota.","explainWrong":{"0":"Low cost is Taco Bell.","1":"Rapid response is Toyota.","3":"Dell is the mass-customisation example in the process-strategy lecture."},"level":1},{"id":"pd-p103","topic":"pd","bank":"practise","type":"mc","stem":"The house of quality, in the lecture, is:","options":["A factory floor plan for Frito-Lay","A planning matrix that relates customer wants to how the firm is going to meet those wants","A type of poka-yoke lid","A long-range capacity option"],"answer":1,"explainRight":"The house of quality “utilise[s] a planning matrix to relate customer wants to how the firm is going to meet those wants”.","explainWrong":{"0":"Frito-Lay is a product-focus process example, not the house of quality.","2":"Poka-yoke is a quality-lecture idea (foolproof devices).","3":"Capacity options are in the capacity lecture, not the definition of the house of quality."},"level":1},{"id":"pd-p104","topic":"pd","bank":"practise","type":"mc","stem":"Which of the following is one of the six items listed under “Generating New Products”?","options":["Understanding the customer","Choosing a poka-yoke checklist only","Setting utilisation equal to efficiency","Acquiring a competitor as a short-range scheduling step"],"answer":0,"explainRight":"The six items start with “Understanding the customer”, then economic, sociological and demographic, technological, political and legal change, and market practice / professional standards / suppliers / distributors.","explainWrong":{"1":"Poka-yoke is from the quality lecture.","2":"Utilisation and efficiency are capacity measures, and they are not usually equal; they are not a new-product driver on this list.","3":"Acquiring competitors is a long-range capacity option, not a new-product-generation item and not short-range scheduling."},"level":1},{"id":"pd-p201","topic":"pd","bank":"practise","type":"tf","stem":"In Figure 5.2, the area in the Introduction phase is labelled Loss.","options":["True","False"],"answer":0,"explainRight":"The figure labels Loss under the cost curve in Introduction. Profit appears later; a small Loss region also appears at the end of Decline.","explainWrong":{"1":"Introduction is labelled Loss on Figure 5.2."},"level":2},{"id":"pd-p202","topic":"pd","bank":"practise","type":"tf","stem":"Figure 5.2 shows a small Loss region again at the end of the Decline phase.","options":["True","False"],"answer":0,"explainRight":"The figure labels Loss at the start (Introduction) and a small Loss region at the end of Decline. Profit occupies much of the middle, from around late Growth through much of Decline.","explainWrong":{"1":"That is how Figure 5.2 is drawn."},"level":2},{"id":"pd-p203","topic":"pd","bank":"practise","type":"mc","stem":"Toyota is used on the product-strategy-options slide as an example of:","options":["Low cost, like Taco Bell","Rapid response","Experience differentiation at a theme park","A FedEx call-centre forecast"],"answer":1,"explainRight":"The three options are differentiation (Shouldice Hospital), low cost (Taco Bell) and rapid response (Toyota).","explainWrong":{"0":"Low cost is Taco Bell on that slide.","2":"Experience differentiation is the Disney example in the intro lecture.","3":"The FedEx figure is in the forecasting lecture."},"level":2},{"id":"pd-p204","topic":"pd","bank":"practise","type":"mc","stem":"“Technological change” appears in the lecture as:","options":["One of the six items under generating new products","The definition of poka-yoke","A short-range FCFS rule","A type of appraisal cost"],"answer":0,"explainRight":"Technological change is item 4 on the generating-new-products list.","explainWrong":{"1":"Poka-yoke is a foolproof device or technique in the quality lecture.","2":"FCFS is a service demand-management rule in the capacity lecture.","3":"Appraisal costs are a cost of quality (evaluating products, parts and services)."},"level":2},{"id":"pd-p301","topic":"pd","bank":"practise","type":"tf","stem":"The operations function, the lecture says, must be able to introduce new products successfully.","options":["True","False"],"answer":0,"explainRight":"That is the second bullet on the product life cycle slide.","explainWrong":{"1":"The lecture states this explicitly."},"level":3},{"id":"pd-p302","topic":"pd","bank":"practise","type":"mc","stem":"A planning matrix that maps “what customers want” to “how the firm will meet those wants” is the lecture’s description of:","options":["Design capacity","The house of quality","A sales force composite","A seasonal index formula"],"answer":1,"explainRight":"That is the house-of-quality bullet. (The slides do not work a full matrix example.)","explainWrong":{"0":"Design capacity is the maximum theoretical output of a system.","2":"A sales force composite aggregates salespeople’s forecasts.","3":"No seasonal-index formula is given in the uploaded slides."},"level":3},{"id":"pd-p303","topic":"pd","bank":"practise","type":"mc","stem":"Which pairing of product-strategy option and lecture example is correct?","options":["Differentiation — Taco Bell; low cost — Toyota","Low cost — Taco Bell; rapid response — Toyota; differentiation — Shouldice Hospital","Rapid response — Shouldice Hospital; differentiation — Taco Bell","All three examples are used only for mass customisation"],"answer":1,"explainRight":"The slide pairs differentiation with Shouldice Hospital, low cost with Taco Bell, and rapid response with Toyota.","explainWrong":{"0":"Those pairings are swapped relative to the slide.","2":"Shouldice is differentiation, not rapid response; Taco Bell is low cost, not differentiation.","3":"Mass customisation is a process strategy (Dell), not the heading for these three product-strategy examples."},"level":3},{"id":"pd-p304","topic":"pd","bank":"practise","type":"tf","stem":"The uploaded lectures state what percentage of sales from new products is indicative of industry leaders.","options":["True","False"],"answer":1,"explainRight":"That percentage is not in the uploaded lectures. A StudyNet quiz asked it, but this tool does not treat any particular percentage as a fact from the slides.","explainWrong":{"0":"The figure is not in the uploaded slides, so the statement is false."},"level":3,"flag":"Check with your lecturer if this percentage is taught from the textbook or another handout — it is not in the uploaded lecture slides."},{"id":"pd-p401","topic":"pd","bank":"practise","type":"tf","stem":"Figure 5.2 names four life-cycle phases — Introduction, Growth, Maturity and Decline — and shows loss, profit, sales and cost curves, but the uploaded lecture text does not state what operations should “focus on” in decline or maturity.","options":["True","False"],"answer":0,"explainRight":"That is an accurate description of what Figure 5.2 and the surrounding bullets do and do not say.","explainWrong":{"1":"The figure names the phases and shows those curves; the operational “focus” statements are not in the uploaded lecture text."},"level":4,"flag":"StudyNet questions about the focus in decline (“high-volume, innovative production”) and capacity concerns in maturity are not settled by the uploaded slides. Check those with your lecturer."},{"id":"pd-p402","topic":"pd","bank":"practise","type":"mc","stem":"Political and legal change is listed in the lecture as:","options":["A cost of quality","An item on the generating-new-products list","A long-range reason to avoid all globalisation","A type of random time-series component"],"answer":1,"explainRight":"It is item 5 under generating new products.","explainWrong":{"0":"The costs of quality are prevention, appraisal, internal failure and external failure.","2":"Globalisation reasons are a different list in the intro lecture; political and legal change is a new-product driver here.","3":"Random is an erratic, non-repeating time-series residual."},"level":4},{"id":"pd-p403","topic":"pd","bank":"practise","type":"mc","stem":"QFD is used to:","options":["Schedule jobs, personnel and machinery in the short range only","Determine what will satisfy the customer and translate those desires into the target design","Compute utilisation as actual output divided by effective capacity","Replace the mission statement"],"answer":1,"explainRight":"Those are the two QFD bullets.","explainWrong":{"0":"Scheduling jobs, personnel and machinery is short-range use of capacity in Figure S7.1.","2":"That formula is efficiency if the denominator is effective capacity; utilisation uses design capacity. Neither is QFD.","3":"QFD is a product-design tool, not a replacement for the mission."},"level":4},{"id":"pd-p404","topic":"pd","bank":"practise","type":"tf","stem":"In Figure 5.2, “Profit” appears as a labelled region from around late Growth through much of Decline.","options":["True","False"],"answer":0,"explainRight":"The figure labels Profit in that middle-to-later region, with Loss in Introduction and a small Loss again at the end of Decline.","explainWrong":{"1":"That is how the figure is labelled."},"level":4},{"id":"pd-m1","topic":"pd","bank":"mock","type":"mc","stem":"Which is a correct product-strategy pairing from the lecture?","options":["Taco Bell — differentiation","Shouldice Hospital — low cost","Toyota — rapid response","Shouldice Hospital — mass customisation"],"answer":2,"explainRight":"Rapid response is illustrated with Toyota. Shouldice Hospital is differentiation; Taco Bell is low cost.","explainWrong":{"0":"Taco Bell is the low-cost example.","1":"Shouldice Hospital is differentiation.","3":"Mass customisation is a process strategy, illustrated with Dell."}},{"id":"pd-m2","topic":"pd","bank":"mock","type":"tf","stem":"The house of quality is a planning matrix relating customer wants to how the firm will meet those wants.","options":["True","False"],"answer":0,"explainRight":"That is the lecture’s house-of-quality bullet.","explainWrong":{"1":"That is the definition on the slide."}},{"id":"pd-m3","topic":"pd","bank":"mock","type":"mc","stem":"Which of the following does Figure 5.2 actually show?","options":["A table of the percentage of sales that industry leaders get from new products","The four phases Introduction, Growth, Maturity and Decline, with Loss and Profit regions","A worked house-of-quality matrix for a hospital","The operational “focus” for every phase, written as a checklist"],"answer":1,"explainRight":"Figure 5.2 is the product life cycle with those four phases and Loss/Profit (and sales and cost) curves. It does not give the industry-leaders percentage, a house-of-quality matrix, or a written operational-focus checklist.","explainWrong":{"0":"That percentage is not in the uploaded lectures.","2":"No worked house-of-quality matrix is in the uploaded slides.","3":"The operational-focus wording is not in the uploaded lecture text. Check with your lecturer if a quiz asks for it."}},{"id":"ps-d1","topic":"ps","bank":"diagnose","type":"tf","stem":"The lecture names four basic process strategies: process focus, repetitive focus, product focus and mass customization.","options":["True","False"],"answer":0,"explainRight":"Those are the four strategies listed on the process-strategies slide, which also notes that within these basic strategies there are many ways they may be implemented.","explainWrong":{"1":"The lecture’s four basic strategies are process focus, repetitive focus, product focus and mass customization."}},{"id":"ps-d2","topic":"ps","bank":"diagnose","type":"mc","stem":"Arnold Palmer Hospital is the lecture’s example of which process strategy?","options":["Product focus","Repetitive focus","Process focus","Mass customization"],"answer":2,"explainRight":"Figure 7.1 / 7.2(a) uses Arnold Palmer Hospital for process focus: high variety, low volume (projects, job shops such as machine shops, print shops, hospitals and restaurants).","explainWrong":{"0":"Product focus is illustrated with Frito-Lay (and steel, glass, beer, commercial baked goods).","1":"Repetitive focus is illustrated with Harley-Davidson (and autos, motorcycles, home appliances).","3":"Mass customization is illustrated with Dell Computer."}},{"id":"ps-d3","topic":"ps","bank":"diagnose","type":"mc","stem":"Product focus, as placed on the lecture diagram, is characterised by:","options":["High variety and low volume","High volume and low variety of products","High variety and high volume","Low volume with both fixed and variable costs high"],"answer":1,"explainRight":"Product focus is high volume but low variety of products (changes in attributes), with examples such as commercial baked goods, steel, glass and beer, and Frito-Lay.","explainWrong":{"0":"High variety and low volume is process focus.","2":"High variety and high volume is mass customization.","3":"That “Poor Strategy” cell has both fixed and variable costs high."}},{"id":"ps-d4","topic":"ps","bank":"diagnose","type":"tf","stem":"The lecture labels a “Poor Strategy” cell in which both fixed and variable costs are high.","options":["True","False"],"answer":0,"explainRight":"The volume–variety diagram marks a “Poor Strategy” region (low volume, changes in attributes) and states: “Both fixed and variable costs are high.”","explainWrong":{"1":"That is the wording on the poor-strategy cell."}},{"id":"ps-p101","topic":"ps","bank":"practise","type":"mc","stem":"In a process-focus facility, the lecture says facilities are organised around:","options":["The product, with long continuous production runs","Specific activities or processes","A single module used for only one output","Mass-customisation software only"],"answer":1,"explainRight":"Process focus: “Facilities are organized around specific activities or processes.” They use general-purpose equipment and skilled personnel, and have a high degree of product flexibility.","explainWrong":{"0":"Organising facilities by product, with long continuous runs, describes product focus.","2":"Repetitive focus uses modules that may be combined for many output options, not a single module for only one output.","3":"Mass customisation is a different strategy (Dell), not the organising idea of process focus."},"level":1},{"id":"ps-p102","topic":"ps","bank":"practise","type":"mc","stem":"Harley-Davidson is the lecture’s worked example of:","options":["Process focus","Repetitive focus","Product focus","The poor-strategy cell"],"answer":1,"explainRight":"Figure 7.2(b) is “(modular) Harley Davidson”: raw material and module inputs (multiple engines and wheel modules) through few modules, combined for many motorcycle outputs.","explainWrong":{"0":"Arnold Palmer Hospital is the process-focus example.","2":"Frito-Lay is the product-focus example.","3":"The poor-strategy cell is not illustrated with Harley-Davidson."},"level":1},{"id":"ps-p103","topic":"ps","bank":"practise","type":"mc","stem":"Frito-Lay, in the process-strategy lecture, illustrates:","options":["Product focus (high-volume, low-variety, continuous process)","Process focus at a hospital","Mass customisation of custom PCs","A jury of executive opinion"],"answer":0,"explainRight":"Figure 7.2(c): “(high-volume, low-variety, continuous process) Frito-Lay”, with few inputs (corn, potatoes, water, seasoning) and output variations in size, shape and packaging.","explainWrong":{"1":"The hospital example is Arnold Palmer Hospital, for process focus.","2":"Custom PCs at Dell are the mass-customisation example.","3":"A jury of executive opinion is a forecasting method."},"level":1},{"id":"ps-p104","topic":"ps","bank":"practise","type":"mc","stem":"Dell Computer is the lecture’s example of:","options":["Process focus","Repetitive focus","Product focus","Mass customization"],"answer":3,"explainRight":"Figure 7.2(d): “(high-volume, high-variety) Dell Computer”, with many part and component inputs through many modules to many output versions (custom PCs and notebooks).","explainWrong":{"0":"Process focus is Arnold Palmer Hospital.","1":"Repetitive focus is Harley-Davidson.","2":"Product focus is Frito-Lay."},"level":1},{"id":"ps-p201","topic":"ps","bank":"practise","type":"tf","stem":"Process focus typically has high costs and low equipment utilization, and product flows may vary considerably, making planning and scheduling a challenge.","options":["True","False"],"answer":0,"explainRight":"Those are process-focus bullets on the lecture slides.","explainWrong":{"1":"The lecture states these as typical features of process focus."},"level":2},{"id":"ps-p202","topic":"ps","bank":"practise","type":"tf","stem":"Product focus typically has high fixed cost but low variable cost, and generally uses less skilled labour.","options":["True","False"],"answer":0,"explainRight":"Those are product-focus bullets, along with long, continuous production runs that enable efficient processes.","explainWrong":{"1":"The lecture states high fixed cost but low variable cost, and generally less skilled labour."},"level":2},{"id":"ps-p203","topic":"ps","bank":"practise","type":"tf","stem":"Mass customization, in the lecture, combines the flexibility of a process focus with the efficiency of a product focus.","options":["True","False"],"answer":0,"explainRight":"That sentence is on the mass-customization slide, which also defines it as the rapid, low-cost production of goods and services to satisfy increasingly unique customer desires.","explainWrong":{"1":"That is the lecture’s description of mass customization."},"level":2},{"id":"ps-p204","topic":"ps","bank":"practise","type":"mc","stem":"A repetitive-focus facility, according to the lecture, is characterised by:","options":["Modules with parts and assemblies made previously, which may be combined for many output options","Many departments and many routings, as at a children’s hospital","Few inputs and only a continuous process with no modules","Always being a “Poor Strategy” because both cost types are high"],"answer":0,"explainRight":"Repetitive focus: facilities often organised as assembly lines; characterised by modules with parts and assemblies made previously; modules may be combined for many output options; less flexibility than process-focused facilities but more efficient.","explainWrong":{"1":"Many departments and many routings is the Arnold Palmer Hospital process-focus description.","2":"Few inputs and a continuous process describes product focus (Frito-Lay).","3":"Repetitive focus is one of the four basic strategies, not the poor-strategy cell."},"level":2},{"id":"ps-p301","topic":"ps","bank":"practise","type":"mc","stem":"A clinic that treats many different patients through many departments and many routings, with uniquely treated outputs, is closest to which lecture example and strategy?","options":["Frito-Lay, product focus","Arnold Palmer Hospital, process focus","Dell, product focus","Harley-Davidson, process focus"],"answer":1,"explainRight":"Figure 7.2(a) describes Arnold Palmer Hospital as a low-volume, high-variety, intermittent process: many inputs (surgeries, sick patients, baby deliveries, emergencies) through many departments and many routings to many different outputs (uniquely treated patients). That is process focus.","explainWrong":{"0":"Frito-Lay is product focus: few inputs and high-volume, low-variety continuous processing.","2":"Dell is mass customization, not product focus.","3":"Harley-Davidson is repetitive focus, not process focus."},"level":3},{"id":"ps-p302","topic":"ps","bank":"practise","type":"mc","stem":"A motorcycle plant builds bikes from engines and wheel modules made earlier, combining a few modules into many different models. Which process strategy is that, as used in the lecture?","options":["Process focus","Mass customization","Repetitive focus","Product focus"],"answer":2,"explainRight":"That is the Harley-Davidson repetitive-focus pattern: modular inputs, few modules, many output combinations. Autos, motorcycles and home appliances are listed in the same mid-volume “changes in modules” group.","explainWrong":{"0":"Process focus is high variety, low volume, organised around activities or processes (hospitals, job shops).","1":"Mass customization is high volume and high variety (Dell), combining process-focus flexibility with product-focus efficiency.","3":"Product focus is high volume, low variety, organised by product (Frito-Lay, steel, glass, beer)."},"level":3},{"id":"ps-p303","topic":"ps","bank":"practise","type":"mc","stem":"Which of the following is grouped with autos and home appliances as a repetitive-focus example in the lecture?","options":["Steel","Commercial baked goods","Motorcycles","Custom cakes in a job-shop bakery"],"answer":2,"explainRight":"The repetitive cell lists “autos, motorcycles, home appliances” and uses Harley-Davidson as the named example. Steel and commercial baked goods sit in the product-focus cell; a custom cake in a job shop fits process focus (job shops, restaurants).","explainWrong":{"0":"Steel is listed under product focus, with glass, beer and commercial baked goods.","1":"Commercial baked goods are a product-focus example.","3":"Custom, job-shop work is process focus (projects, job shops, restaurants)."},"level":3},{"id":"ps-p304","topic":"ps","bank":"practise","type":"mc","stem":"Which phrase does the lecture use of product focus (and not of process focus)?","options":["High degree of product flexibility, with general-purpose equipment","Typically high fixed cost but low variable cost","High variety, low volume, intermittent processes","Both fixed and variable costs are high"],"answer":1,"explainRight":"Product focus: typically high fixed cost but low variable cost; high volume but low variety; facilities organised by product. High flexibility and general-purpose equipment are process-focus points. “Both fixed and variable costs are high” is the poor-strategy cell.","explainWrong":{"0":"Those are process-focus bullets.","2":"That wording is used for process focus (Figure 7.2(a)).","3":"That is the poor-strategy cell, not product focus."},"level":3},{"id":"ps-p401","topic":"ps","bank":"practise","type":"mc","stem":"The “Poor Strategy” region on the lecture diagram is described as:","options":["High volume and high variety, which is always the goal","Low volume with changes in attributes, where both fixed and variable costs are high","The same as mass customization at Dell","Any repetitive assembly line"],"answer":1,"explainRight":"The diagram marks a poor-strategy cell at low volume, changes in attributes, and states that both fixed and variable costs are high.","explainWrong":{"0":"High volume and high variety is mass customization, which the lecture calls difficult to achieve but with huge rewards — not the poor-strategy cell.","2":"Dell is the mass-customization example, not the poor-strategy cell.","3":"A repetitive assembly line is one of the four basic strategies."},"level":4},{"id":"ps-p402","topic":"ps","bank":"practise","type":"mc","stem":"Which set is listed in the lecture as product-focus examples (high volume, changes in attributes)?","options":["Hospitals, restaurants, and print job shops","Autos, motorcycles, and home appliances","Commercial baked goods, steel, glass and beer","Custom PCs and uniquely treated hospital patients"],"answer":2,"explainRight":"Product focus lists commercial baked goods, steel, glass and beer, with Frito-Lay as the worked figure. Hospitals and restaurants are process focus; autos and motorcycles are repetitive; custom PCs are mass customization.","explainWrong":{"0":"Those are process-focus settings (projects, job shops).","1":"Those are repetitive-focus examples.","3":"Custom PCs are Dell (mass customization); uniquely treated patients are Arnold Palmer Hospital (process focus)."},"level":4},{"id":"ps-p403","topic":"ps","bank":"practise","type":"tf","stem":"Process focus is described as low-volume, high-variety, intermittent processes, using general-purpose equipment and skilled personnel.","options":["True","False"],"answer":0,"explainRight":"Figure 7.2(a) calls process focus “(low-volume, high-variety, intermittent processes)”, and the bullets include general-purpose equipment and skilled personnel.","explainWrong":{"1":"That is the lecture description of process focus."},"level":4},{"id":"ps-p404","topic":"ps","bank":"practise","type":"mc","stem":"Mass customization is placed on the lecture diagram as:","options":["High variety and low volume, like a job shop","High variety and high volume — “difficult to achieve, but huge rewards”","High volume and low variety, like a continuous baked-goods line","A poor strategy because both cost types are high"],"answer":1,"explainRight":"Mass customization is the high-variety, high-volume cell, marked “difficult to achieve, but huge rewards”, and illustrated with Dell Computer.","explainWrong":{"0":"High variety and low volume is process focus.","2":"High volume and low variety is product focus.","3":"The poor-strategy cell is a different region of the same diagram."},"level":4},{"id":"ps-m1","topic":"ps","bank":"mock","type":"mc","stem":"Which pairing of process strategy and lecture example is correct?","options":["Process focus — Frito-Lay","Repetitive focus — Dell Computer","Product focus — Frito-Lay","Mass customization — Arnold Palmer Hospital"],"answer":2,"explainRight":"Product focus is illustrated with Frito-Lay. Process focus is Arnold Palmer Hospital; repetitive is Harley-Davidson; mass customization is Dell.","explainWrong":{"0":"Frito-Lay is product focus, not process focus.","1":"Dell is mass customization, not repetitive focus.","3":"Arnold Palmer Hospital is process focus, not mass customization."}},{"id":"ps-m2","topic":"ps","bank":"mock","type":"tf","stem":"A process-focus facility typically has high costs and low equipment utilization.","options":["True","False"],"answer":0,"explainRight":"That is a process-focus bullet, together with high product flexibility and variable product flows that make planning and scheduling a challenge.","explainWrong":{"1":"The lecture states this of process focus."}},{"id":"ps-m3","topic":"ps","bank":"mock","type":"mc","stem":"Mass customization is defined in the lecture as:","options":["Organising facilities only around a single continuous product with no variety","The rapid, low-cost production of goods and services to satisfy increasingly unique customer desires","A forecast method used when little data exist","The same as the “Poor Strategy” cell"],"answer":1,"explainRight":"That is the mass-customization definition. It combines process-focus flexibility with product-focus efficiency.","explainWrong":{"0":"That is closer to product focus (high volume, low variety, continuous runs), not mass customization.","2":"Qualitative forecasting methods are used when the situation is vague and little data exist.","3":"The poor-strategy cell is a different region, where both fixed and variable costs are high."}},{"id":"cap-d1","topic":"cap","bank":"diagnose","type":"tf","stem":"Design capacity is the maximum theoretical output of a system, and it is normally expressed as a rate.","options":["True","False"],"answer":0,"explainRight":"That is the lecture definition. Examples given for expressing it as a rate include beds (a hospital), active members (a church), or billable hours (a CPA firm).","explainWrong":{"1":"That is the lecture definition of design capacity."}},{"id":"cap-d2","topic":"cap","bank":"diagnose","type":"mc","stem":"Utilization, as written on the formula slide, is:","options":["Actual output divided by effective capacity","Actual output divided by design capacity","Design capacity divided by actual output","Effective capacity divided by design capacity"],"answer":1,"explainRight":"The slide says: Utilization is the percent of design capacity actually achieved. Utilization = Actual output / Design capacity.","explainWrong":{"0":"Actual output / effective capacity is efficiency, not utilization.","2":"The denominator is design capacity, and the numerator is actual output, not the other way around.","3":"That is not either formula on the slide."}},{"id":"cap-d3","topic":"cap","bank":"diagnose","type":"mc","stem":"Efficiency, as written on the formula slide, is:","options":["Actual output divided by design capacity","Actual output divided by effective capacity","Effective capacity divided by actual output","Always equal to utilization"],"answer":1,"explainRight":"The slide says: Efficiency is the percent of effective capacity actually achieved. Efficiency = Actual output / Effective capacity.","explainWrong":{"0":"Actual output / design capacity is utilization.","2":"The numerator is actual output and the denominator is effective capacity.","3":"The two measures use different denominators, so they are not generally equal. In the bakery example, utilization is 73.4% and efficiency is 84.6%."}},{"id":"cap-d4","topic":"cap","bank":"diagnose","type":"tf","stem":"Effective capacity is often lower than design capacity.","options":["True","False"],"answer":0,"explainRight":"The lecture defines effective capacity as the capacity a firm expects to achieve given current operating constraints, and states that it is often lower than design capacity.","explainWrong":{"1":"The lecture says effective capacity is often lower than design capacity."}},{"id":"cap-p101","topic":"cap","bank":"practise","type":"mc","stem":"Capacity is defined in the lecture as:","options":["Only the number of people on the payroll","The throughput, or the number of units a facility can hold, receive, store, or produce in a period of time","The same thing as a product life cycle","A qualitative forecast"],"answer":1,"explainRight":"That is the opening definition. The lecture also says capacity determines if demand will be satisfied and determines fixed costs, and that there are three time horizons.","explainWrong":{"0":"Workforce size can affect capacity, but that is not the definition on the slide.","2":"The product life cycle is a product-design topic, not the definition of capacity.","3":"A qualitative forecast is a forecasting method family."},"level":1},{"id":"cap-p102","topic":"cap","bank":"practise","type":"mc","stem":"Which of the following is a lecture example of design capacity expressed as a rate?","options":["Beds in a hospital","A poka-yoke lid","A Delphi panel","A house-of-quality roof"],"answer":0,"explainRight":"The slide lists beds (a hospital), active members (a church), or billable hours (a CPA firm) as ways design capacity is normally expressed as a rate.","explainWrong":{"1":"Poka-yoke is a quality-lecture idea (foolproof devices).","2":"Delphi is a qualitative forecasting method.","3":"The house of quality is a product-design planning matrix."},"level":1},{"id":"cap-p103","topic":"cap","bank":"practise","type":"tf","stem":"Effective capacity is the capacity a firm expects to achieve given current operating constraints.","options":["True","False"],"answer":0,"explainRight":"That is the lecture definition, which also says it is often lower than design capacity.","explainWrong":{"1":"That is the lecture definition of effective capacity."},"level":1},{"id":"cap-p104","topic":"cap","bank":"practise","type":"tf","stem":"Utilization is the percent of design capacity actually achieved.","options":["True","False"],"answer":0,"explainRight":"That sentence appears immediately above the utilization formula on the formula slide.","explainWrong":{"1":"The lecture states this explicitly."},"level":1},{"id":"cap-p201","topic":"cap","bank":"practise","type":"num","stem":"Frito-Lay machines are designed to produce 1,000 bags of chips per hour, and the plant operates 16 hours per day. Using the lecture’s working, what is design capacity in bags per day?","answer":16000,"unit":"bags/day","tol":0.5,"working":["Design capacity is the maximum theoretical output under ideal conditions for the time the system is available.","Design capacity = 1,000 bags per hour × 16 hours per day.","1,000 × 16 = 16,000 bags per day."],"explainRight":"The lecture’s Frito-Lay working is 1,000 bags/hr × 16 hrs = 16,000 bags/day.","level":2,"hint":"Enter the number of bags per day, as in the lecture (16000)."},{"id":"cap-p202","topic":"cap","bank":"practise","type":"num","stem":"Frito-Lay’s design capacity is 16,000 bags per day. The plant loses 3 hours of output per day to planned unavailability (preventive maintenance, breaks and changeovers) at 1,000 bags per hour. What is effective capacity in bags per day?","answer":13000,"unit":"bags/day","tol":0.5,"working":["Effective capacity = design capacity minus lost output because of planned resource unavailability.","Lost planned output = 1,000 bags per hour × 3 hours per day = 3,000 bags per day.","Effective capacity = 16,000 − 3,000 = 13,000 bags per day."],"explainRight":"The lecture’s working: 16,000 bags/day − (1,000 bags/hr)(3 hr/day) = 13,000 bags/day.","level":2,"hint":"Enter bags per day (13000)."},{"id":"cap-p203","topic":"cap","bank":"practise","type":"num","stem":"Frito-Lay’s effective capacity is 13,000 bags per day. On average the machines are not running 1 hour per day because of late parts and breakdowns, at 1,000 bags per hour. What is actual output in bags per day?","answer":12000,"unit":"bags/day","tol":0.5,"working":["Actual output = effective capacity minus lost output during unplanned resource idleness (for example absenteeism, breakdowns, unavailable parts, quality problems).","Unplanned loss = 1,000 bags per hour × 1 hour per day = 1,000 bags per day.","Actual output = 13,000 − 1,000 = 12,000 bags per day."],"explainRight":"The lecture’s working: 13,000 bags/day − 1,000 bags/day = 12,000 bags/day.","level":2,"hint":"Enter bags per day (12000)."},{"id":"cap-p204","topic":"cap","bank":"practise","type":"mc","stem":"In Table S7.1, planned resource unavailability (for example preventive maintenance, setups and scheduled breaks) is subtracted when moving from:","options":["Effective capacity to actual output","Design capacity to effective capacity","Actual output to design capacity","Efficiency to utilization, as a forecast step"],"answer":1,"explainRight":"Effective capacity is design capacity minus lost output because of planned resource unavailability. Actual output is then effective capacity minus lost output during unplanned resource idleness (absenteeism, breakdowns, unavailable parts, quality problems).","explainWrong":{"0":"The step from effective capacity to actual output subtracts unplanned idleness, not planned unavailability.","2":"The lecture does not subtract in that direction.","3":"Utilization and efficiency are ratios; this question is about how the three capacity figures are derived."},"level":2},{"id":"cap-p301","topic":"cap","bank":"practise","type":"num","stem":"A bakery’s design rate is 1,200 rolls per hour. It operates 7 days a week, with three 8-hour shifts each day. Using the lecture’s bakery working, what is design capacity in rolls for the week?","answer":201600,"unit":"rolls","tol":0.5,"working":["Hours available in the week = 7 days × 3 shifts × 8 hours = 168 hours.","Design capacity = 168 hours × 1,200 rolls per hour.","The lecture writes this as (7 × 3 × 8) × 1,200 = 201,600 rolls."],"explainRight":"The lecture’s bakery design capacity is (7 × 3 × 8) × 1,200 = 201,600 rolls.","level":3,"hint":"Enter the weekly design capacity in rolls (201600)."},{"id":"cap-p302","topic":"cap","bank":"practise","type":"num","stem":"In the lecture’s bakery example, actual production last week was 148,000 rolls and design capacity was 201,600 rolls. What is utilization, as a percentage (the lecture reports one decimal place)?","answer":73.4,"unit":"%","tol":0.5,"working":["Utilization = Actual output / Design capacity.","148,000 ÷ 201,600 = 0.73313…","As a percentage, the lecture reports 73.4%."],"explainRight":"The lecture’s bakery utilization is 148,000 / 201,600 = 73.4%. Answers within 0.5 percentage points are accepted.","level":3,"hint":"Enter the percentage, for example 73.4. A decimal such as 0.734 is also accepted."},{"id":"cap-p303","topic":"cap","bank":"practise","type":"num","stem":"In the lecture’s bakery example, actual production last week was 148,000 rolls and effective capacity was 175,000 rolls. What is efficiency, as a percentage (the lecture reports one decimal place)?","answer":84.6,"unit":"%","tol":0.5,"working":["Efficiency = Actual output / Effective capacity.","148,000 ÷ 175,000 = 0.84571…","As a percentage, the lecture reports 84.6%."],"explainRight":"The lecture’s bakery efficiency is 148,000 / 175,000 = 84.6%. Answers within 0.5 percentage points are accepted.","level":3,"hint":"Enter the percentage, for example 84.6."},{"id":"cap-p304","topic":"cap","bank":"practise","type":"mc","stem":"If demand exceeds capacity, the lecture’s managing-demand slide says you should:","options":["Only close facilities immediately, with no other option listed","Curtail demand by raising prices and scheduling longer lead times, with the long-term solution being to increase capacity","Always stimulate the market and change the product first","Produce nothing until the forecast is naive"],"answer":1,"explainRight":"If demand exceeds capacity: curtail demand by raising prices, scheduling longer lead times; the long-term solution is to increase capacity. (If capacity exceeds demand, the same slide says stimulate the market and make product changes. Seasonal demands: produce products with complementary demand patterns.)","explainWrong":{"0":"Closing facilities is one of the later “tactics for matching capacity to demand”, not the opening advice when demand exceeds capacity.","2":"Stimulating the market and product changes are listed for when capacity exceeds demand.","3":"The naive forecast is a forecasting method, not a demand-management rule here."},"level":3},{"id":"cap-p401","topic":"cap","bank":"practise","type":"num","stem":"Practice problem (same formulas as the lecture, new numbers). A campus café’s design capacity is 400 drinks per day and actual output is 300 drinks per day. What is utilization, as a percentage?","answer":75,"unit":"%","tol":0.5,"working":["Utilization = Actual output / Design capacity.","300 ÷ 400 = 0.75.","As a percentage, utilization = 75%."],"explainRight":"Utilization = 300 / 400 = 75%. This is a practice problem using the lecture formula with new everyday numbers. Answers within 0.5 percentage points are accepted.","level":4,"hint":"Enter 75 (or 75.0). A proportion such as 0.75 is also accepted."},{"id":"cap-p402","topic":"cap","bank":"practise","type":"num","stem":"Practice problem (same formulas as the lecture, new numbers). The same café’s effective capacity is 350 drinks per day and actual output is 300 drinks per day. What is efficiency, as a percentage, to one decimal place?","answer":85.7,"unit":"%","tol":0.5,"working":["Efficiency = Actual output / Effective capacity.","300 ÷ 350 = 0.85714…","As a percentage, that is 85.7% when rounded to one decimal place, as the bakery example is reported."],"explainRight":"Efficiency = 300 / 350 = 85.7% (to one decimal place). Answers within 0.5 percentage points are accepted, so 85.7 or 86 will both be marked right.","level":4,"hint":"Enter 85.7 (a proportion such as 0.857 is also accepted)."},{"id":"cap-p403","topic":"cap","bank":"practise","type":"num","stem":"Practice problem (same formulas as the lecture, new numbers). A student print room can print 50 pages per hour and is open 5 days, with two 8-hour shifts each day. Actual output last week was 3,200 pages. What is utilization, as a percentage?","answer":80,"unit":"%","tol":0.5,"working":["Design capacity for the week = (5 days × 2 shifts × 8 hours) × 50 pages per hour.","5 × 2 × 8 = 80 hours; 80 × 50 = 4,000 pages.","Utilization = Actual output / Design capacity = 3,200 / 4,000 = 0.80 = 80%."],"explainRight":"Design capacity is 4,000 pages; utilization = 3,200 / 4,000 = 80%. Practice numbers, lecture formula. Answers within 0.5 percentage points are accepted.","level":4,"hint":"Enter 80. First compute weekly design capacity, then divide actual by design."},{"id":"cap-p404","topic":"cap","bank":"practise","type":"mc","stem":"According to Figure S7.1, short-range planning (scheduling) uses capacity by:","options":["Designing new production processes and acquiring competitors","Scheduling jobs, scheduling personnel, and allocating machinery","Only building inventory, because short-range capacity is easy to expand","Selling facilities as the first listed option"],"answer":1,"explainRight":"In the short-range “use capacity” column the figure lists: schedule jobs; schedule personnel; allocate machinery. A footnote says it is difficult to adjust (modify) capacity in the short range, as limited options exist. Designing new processes, adding long-lead equipment, acquiring or selling facilities, and acquiring competitors are long-range ways to modify capacity.","explainWrong":{"0":"Those are long-range ways to modify capacity.","2":"Building or using inventory is an intermediate-range way to use capacity. The figure also marks short-range capacity as difficult to adjust.","3":"Acquiring or selling facilities is a long-range modify-capacity option."},"level":4},{"id":"cap-m1","topic":"cap","bank":"mock","type":"num","stem":"Using the lecture’s Frito-Lay figures — actual output 12,000 bags per day and design capacity 16,000 bags per day — what is utilization, as a percentage?","answer":75,"unit":"%","tol":0.5,"working":["Utilization = Actual output / Design capacity.","12,000 ÷ 16,000 = 0.75.","As a percentage, utilization = 75%."],"explainRight":"Utilization = 12,000 / 16,000 = 75%. Answers within 0.5 percentage points are accepted.","hint":"Enter 75."},{"id":"cap-m2","topic":"cap","bank":"mock","type":"num","stem":"Practice problem (lecture formulas, new numbers). A small bakery’s actual output is 900 loaves, and its effective capacity is 1,200 loaves. What is efficiency, as a percentage?","answer":75,"unit":"%","tol":0.5,"working":["Efficiency = Actual output / Effective capacity.","900 ÷ 1,200 = 0.75.","As a percentage, efficiency = 75%."],"explainRight":"Efficiency = 900 / 1,200 = 75%. Answers within 0.5 percentage points are accepted.","hint":"Enter 75."},{"id":"cap-m3","topic":"cap","bank":"mock","type":"mc","stem":"In the service sector, the lecture says scheduling customers is demand management, and scheduling the workforce is capacity management. Which of the following is listed as a demand-management method?","options":["Only buying long-lead-time equipment, which is a short-range modify-capacity option","Appointments (doctors’ and lawyers’ offices), reservations (rental cars, hotels and some restaurants), and the FCFS rule (retail shops, a post office, or a fast-food restaurant)","Full-time, temporary and part-time staff, which the slide lists as demand management","Naive forecasting of the business cycle only"],"answer":1,"explainRight":"Demand management: appointment (doctors’ and lawyers’ offices); reservations (rental car agencies, hotels and some restaurants); FCFS rule (retail shops, a post office, or a fast-food restaurant). Capacity management — “when managing demand is not feasible” — is full-time, temporary and part-time staff.","explainWrong":{"0":"Adding or selling long-lead-time equipment is a long-range modify-capacity option in Figure S7.1, not a service demand-management method.","2":"Full-time, temporary and part-time staff are listed under capacity management, not demand management.","3":"The naive approach is a forecasting method, and economic forecasts address the business cycle."}},{"id":"scm-d1","topic":"scm","bank":"diagnose","type":"tf","stem":"The objective of supply chain management, as stated in the lecture, is to structure the supply chain to maximize its competitive advantage and benefits to the ultimate consumer.","options":["True","False"],"answer":0,"explainRight":"That sentence is the SCM objective on the lecture slide.","explainWrong":{"1":"That is the lecture’s stated objective of supply chain management."}},{"id":"scm-d2","topic":"scm","bank":"diagnose","type":"mc","stem":"In Table 11.1 (supply chain costs as a percentage of sales), which industry is listed with the highest percentage?","options":["Restaurants, at 35","Automobiles, at 67","Petroleum, at 79","Beverages, at 52"],"answer":2,"explainRight":"Table 11.1 lists petroleum at 79, the highest figure in the table. Automobiles are 67, beverages 52, and restaurants 35 (the lowest figure shown).","explainWrong":{"0":"Restaurants are listed at 35, the lowest percentage in the table, not the highest.","1":"Automobiles are listed at 67, which is high but not the highest.","3":"Beverages are listed at 52."}},{"id":"scm-d3","topic":"scm","bank":"diagnose","type":"tf","stem":"A many-suppliers strategy is commonly used for commodity products, and purchasing is typically based on price.","options":["True","False"],"answer":0,"explainRight":"Those are the opening bullets on the many-suppliers slide. The same slide says suppliers compete with one another.","explainWrong":{"1":"The lecture states this of the many-suppliers strategy."}},{"id":"scm-d4","topic":"scm","bank":"diagnose","type":"mc","stem":"Which of the following are the two sourcing strategies that the uploaded lecture actually explains (not only names)?","options":["Vertical integration and keiretsu networks","Many suppliers and few suppliers","Joint ventures and virtual companies","Only outsourcing, with no sourcing-strategy list"],"answer":1,"explainRight":"Six sourcing strategies are listed: many suppliers; few suppliers; vertical integration; joint ventures; keiretsu networks; virtual companies. Only many-suppliers and few-suppliers are then explained. The other four are names only in this deck.","explainWrong":{"0":"Those two are named on the list and are not explained in the uploaded lecture.","2":"Those two are named on the list and are not explained in the uploaded lecture.","3":"Outsourcing is defined on a nearby slide, and a six-item sourcing-strategy list is given."}},{"id":"scm-p101","topic":"scm","bank":"practise","type":"tf","stem":"The lecture describes the supply chain as the coordination of all supply chain activities, starting with raw materials and ending with a satisfied customer.","options":["True","False"],"answer":0,"explainRight":"That is the strategic-importance slide, which also says the chain includes suppliers, manufacturers and/or service providers, distributors, wholesalers, retailers, and final customers.","explainWrong":{"1":"That is the lecture wording."},"level":1},{"id":"scm-p102","topic":"scm","bank":"practise","type":"mc","stem":"In Table 11.1, restaurants are listed at what percentage of sales for supply chain costs?","options":["79","67","35","52"],"answer":2,"explainRight":"Restaurants 35. For comparison: petroleum 79, automobiles 67, beverages 52, food 60, paper 55.","explainWrong":{"0":"79 is petroleum.","1":"67 is automobiles.","3":"52 is beverages."},"level":1},{"id":"scm-p103","topic":"scm","bank":"practise","type":"mc","stem":"Make-or-buy, as defined in the lecture, is:","options":["Transferring traditional internal activities and resources to outside vendors","Choosing between obtaining products and services externally as opposed to producing them internally","A qualitative forecast used for new technology only","The same as a poka-yoke checklist"],"answer":1,"explainRight":"Make-or-buy is “choosing between obtaining products and services externally as opposed to producing them internally”. Outsourcing is the nearby definition: transfer traditional internal activities and resources to outside vendors.","explainWrong":{"0":"That is the lecture definition of outsourcing, not make-or-buy.","2":"Qualitative forecasts are a forecasting topic.","3":"Poka-yoke is a quality-lecture idea."},"level":1},{"id":"scm-p104","topic":"scm","bank":"practise","type":"mc","stem":"Outsourcing, in the lecture, includes which of the following ideas?","options":["Transfer traditional internal activities and resources to outside vendors, with efficiency in specialization and a focus on core competencies","Always using as many commodity suppliers as possible, and never a vendor","A short-range way to acquire a competitor","The house of quality matrix"],"answer":0,"explainRight":"Outsourcing: transfer traditional internal activities and resources to outside vendors; efficiency in specialization; focus on core competencies.","explainWrong":{"1":"Many-suppliers is a separate sourcing strategy, commonly used for commodity products. Outsourcing is not defined as “never a vendor”.","2":"Acquiring competitors is a long-range capacity option in Figure S7.1.","3":"The house of quality is a product-design tool."},"level":1},{"id":"scm-p201","topic":"scm","bank":"practise","type":"mc","stem":"Under a many-suppliers strategy, the lecture says the supplier is responsible for:","options":["Only delivery, with the buyer doing all forecasting and quality work","Technology, expertise, forecasting, cost, quality, and delivery","Nothing, because the buyer owns the supplier","Political-risk insurance only"],"answer":1,"explainRight":"The many-suppliers slide lists those six responsibilities. It also says suppliers compete with one another, and purchasing is typically based on price.","explainWrong":{"0":"The slide gives a longer list than delivery alone: technology, expertise, forecasting, cost, quality and delivery.","2":"The lecture does not say the buyer owns the supplier under this strategy.","3":"Political-risk insurance is a tactic in Table 11.3, not a many-suppliers responsibility list."},"level":2},{"id":"scm-p202","topic":"scm","bank":"practise","type":"mc","stem":"Which of the following is a lecture point about a few-suppliers strategy?","options":["Purchasing is typically based on price, as with commodity products","The buyer forms long-term relationships with fewer suppliers, and the cost of changing suppliers is huge","Suppliers never contribute design expertise","There is no risk to trade secrets"],"answer":1,"explainRight":"Few suppliers: the buyer forms long-term relationships with fewer suppliers; value is created through economies of scale and learning-curve improvements; suppliers are more willing to participate in JIT programmes and contribute design and technological expertise; the cost of changing suppliers is huge; trade secrets and other alliances may be at risk.","explainWrong":{"0":"Purchasing typically based on price, for commodity products, is a many-suppliers point.","2":"The lecture says suppliers are more willing to contribute design and technological expertise.","3":"The lecture warns that trade secrets and other alliances may be at risk."},"level":2},{"id":"scm-p203","topic":"scm","bank":"practise","type":"mc","stem":"In Table 11.2, the primary supplier-selection criteria under a low-cost strategy are listed as:","options":["Capacity, speed and flexibility","Product-development skills, willingness to share information, and jointly developing products","Cost","Only modular design"],"answer":2,"explainRight":"Low-cost: Cost. Response: Capacity; Speed; Flexibility. Differentiation: Product development skills; willing to share information; jointly and rapidly develop products.","explainWrong":{"0":"Those are the response-strategy selection criteria.","1":"Those are the differentiation-strategy selection criteria.","3":"Modular design to aid product differentiation is a product-design characteristic under differentiation, not the primary selection criterion under low cost."},"level":2},{"id":"scm-p204","topic":"scm","bank":"practise","type":"mc","stem":"How does Table 11.2 treat supply-chain inventory under a response strategy?","options":["Minimize inventory to hold down costs","Use buffer stocks to ensure speedy supply","Minimize inventory to avoid product obsolescence","Never hold any inventory, in any strategy"],"answer":1,"explainRight":"Response: use buffer stocks to ensure speedy supply. Low-cost: minimize inventory to hold down costs. Differentiation: minimize inventory to avoid product obsolescence.","explainWrong":{"0":"That is the low-cost inventory approach in the table.","2":"That is the differentiation inventory approach in the table.","3":"The table describes three different inventory approaches, not a single “never hold inventory” rule."},"level":2},{"id":"scm-p301","topic":"scm","bank":"practise","type":"mc","stem":"A firm in the petroleum industry is compared, in Table 11.1, with restaurants. Which comparison matches the table?","options":["Petroleum 35; restaurants 79","Petroleum 79; restaurants 35","Both are listed at 67, like automobiles","The table does not include either industry"],"answer":1,"explainRight":"Petroleum is 79 and restaurants are 35 — the highest and lowest percentages in Table 11.1. Automobiles are 67.","explainWrong":{"0":"Those two figures are swapped.","2":"67 is the automobiles figure, not a shared figure for petroleum and restaurants.","3":"Both industries are in the table."},"level":3},{"id":"scm-p302","topic":"scm","bank":"practise","type":"tf","stem":"Vertical integration, joint ventures, keiretsu networks and virtual companies appear as names on the six-sourcing-strategies list, but the uploaded lecture does not explain them.","options":["True","False"],"answer":0,"explainRight":"The list has six names. Only many-suppliers and few-suppliers have following slides that explain them. This tool does not invent definitions for the other four.","explainWrong":{"1":"That is an accurate account of what the uploaded deck does and does not explain."},"level":3,"flag":"Check with your lecturer if those four strategies are taught from the textbook or another handout — they are not explained in the uploaded slides."},{"id":"scm-p303","topic":"scm","bank":"practise","type":"mc","stem":"Table 11.3’s example for “supplier failure to deliver” is:","options":["Boeing’s international communication system","McDonald’s planning its supply chain six years before opening in Russia, and closely monitoring every plant","Honda and Nissan moving manufacturing out of Japan because of the yen","The Domestic Port Radiation Initiative"],"answer":1,"explainRight":"Supplier failure to deliver: tactics include using multiple suppliers, effective contracts with penalties, subcontractors on retainer, and preplanning. The example is McDonald’s planning its supply chain six years before opening in Russia, with every plant — bakery, meat, chicken, fish and lettuce — closely monitored.","explainWrong":{"0":"Boeing’s communication system is the example for information loss or distortion.","2":"Honda and Nissan is the economic-risk example (exchange rates).","3":"The Domestic Port Radiation Initiative is the example under theft, vandalism and terrorism."},"level":3},{"id":"scm-p304","topic":"scm","bank":"practise","type":"mc","stem":"Hard Rock Café, in Table 11.3, is the example for which risk, and what tactic is named?","options":["Natural catastrophes — always owning every site","Political risk — franchising and licensing rather than owning when political and cultural barriers seem significant","Supplier quality failures — third-party audits only, with no other firm named","Economic risk — hedging, with no firm named"],"answer":1,"explainRight":"Political risk tactics: political risk insurance; cross-country diversification; franchising and licensing. Example: Hard Rock Café reduces political risk by franchising and licensing, rather than owning, when the political and cultural barriers seem significant.","explainWrong":{"0":"The natural-catastrophe example is Toyota seeking at least two suppliers in different regions. Hard Rock is the political-risk example, and the tactic is franchising and licensing rather than owning.","2":"Supplier quality failures is illustrated with Darden Restaurants (including third-party audits), not Hard Rock.","3":"Economic risk is illustrated with Honda and Nissan, and includes hedging and contracts that address price fluctuations."},"level":3},{"id":"scm-p401","topic":"scm","bank":"practise","type":"mc","stem":"After fires, earthquakes and tsunamis, Table 11.3 says Toyota now attempts to:","options":["Use only one global supplier for every component","Have at least two suppliers, each in a different geographical region, for each component","Stop all insurance and alternate sourcing","Move all manufacturing into a single plant in Japan"],"answer":1,"explainRight":"Natural catastrophes: tactics are insurance, alternate sourcing and cross-country diversification. The example is that Toyota, after fires, earthquakes and tsunamis, now attempts to have at least two suppliers, each in a different geographical region, for each component.","explainWrong":{"0":"The lecture example is the opposite: at least two suppliers in different regions.","2":"Insurance and alternate sourcing are listed as tactics, not as things to stop.","3":"The economic-risk example is Honda and Nissan moving manufacturing out of Japan as the yen makes Japanese-made autos more expensive — and that is a different row from natural catastrophes."},"level":4},{"id":"scm-p402","topic":"scm","bank":"practise","type":"mc","stem":"Table 11.3’s economic-risk example is that Honda and Nissan are moving more manufacturing out of Japan because:","options":["Political and cultural barriers make owning cafés difficult","The exchange rate for the yen makes Japanese-made autos more expensive","Radiation monitors are scanning imported containers","A house-of-quality matrix requires it"],"answer":1,"explainRight":"Economic-risk tactics include hedging to combat exchange-rate risk and purchasing contracts that address price fluctuations. The example is Honda and Nissan moving more manufacturing out of Japan as the exchange rate for the yen makes Japanese-made autos more expensive.","explainWrong":{"0":"That is closer to the Hard Rock political-risk example (franchising and licensing).","2":"That is the Domestic Port Radiation Initiative example under theft, vandalism and terrorism.","3":"The house of quality is a product-design tool, not a Table 11.3 tactic."},"level":4},{"id":"scm-p403","topic":"scm","bank":"practise","type":"mc","stem":"Under a low-cost strategy, Table 11.2 describes the distribution network as:","options":["Fast transportation and premium customer service","Inexpensive transportation, and selling through discount distributors/retailers","Gathering market-research data and using a knowledgeable sales staff","Only franchising, as at Hard Rock"],"answer":1,"explainRight":"Low-cost distribution: inexpensive transportation; sell through discount distributors/retailers. Response: fast transportation; provide premium customer service. Differentiation: gather and communicate market research data; knowledgeable sales staff.","explainWrong":{"0":"That is the response-strategy distribution network.","2":"That is the differentiation-strategy distribution network.","3":"Franchising at Hard Rock is a political-risk tactic in Table 11.3, not a Table 11.2 distribution-network row."},"level":4},{"id":"scm-p404","topic":"scm","bank":"practise","type":"mc","stem":"Which of the following is a lecture point about supply-chain risk?","options":["More reliance on supply chains means more risk, and fewer suppliers increase dependence","Risk disappears once a firm outsources","Globalization reduces all logistical complexity, according to the slide","The lecture lists no mitigation headlines at all"],"answer":0,"explainRight":"The risk slides say: more reliance on supply chains means more risk; fewer suppliers increase dependence; risk is compounded by globalization and logistical complexity; there are vendor reliability and quality risks, and political and currency risks. Mitigation headlines include research and assess possible risks, innovative planning, reduce potential disruptions, prepare responses, flexible secure supply chains, and a diversified supplier base.","explainWrong":{"1":"The lecture does not say risk disappears with outsourcing. Outsourcing itself is a risk row in Table 11.3.","2":"The slide says risk is compounded by globalization and logistical complexity, not reduced by them.","3":"Mitigation headlines are listed, as summarised in the correct-answer explanation."},"level":4},{"id":"scm-m1","topic":"scm","bank":"mock","type":"tf","stem":"The supply chain, in the lecture, includes suppliers, manufacturers and/or service providers, distributors, wholesalers, retailers, and final customers.","options":["True","False"],"answer":0,"explainRight":"That list is on the strategic-importance slide.","explainWrong":{"1":"That is the lecture list."}},{"id":"scm-m2","topic":"scm","bank":"mock","type":"mc","stem":"Compared with a many-suppliers approach, a few-suppliers strategy as described in the lecture is more likely to involve:","options":["Purchasing typically based on price for commodity products, with suppliers competing mainly on that basis","Long-term relationships, economies of scale and learning-curve improvements, and a huge cost of changing suppliers","No discussion of JIT or design expertise","A rule that trade secrets cannot be at risk"],"answer":1,"explainRight":"Those are few-suppliers bullets. Price-based purchasing for commodity products, with suppliers competing, is the many-suppliers description. Few-suppliers also notes JIT participation, design expertise, and that trade secrets may be at risk.","explainWrong":{"0":"That is the many-suppliers description.","2":"The few-suppliers slide says suppliers are more willing to participate in JIT programmes and contribute design and technological expertise.","3":"The slide says trade secrets and other alliances may be at risk."}},{"id":"scm-m3","topic":"scm","bank":"mock","type":"mc","stem":"Walmart’s own trucking fleet and numerous U.S. distribution centers, used to find alternative origins and delivery routes, is Table 11.3’s example for:","options":["Political risk","Logistics delays or damage","Supplier quality failures","Information loss or distortion"],"answer":1,"explainRight":"Logistics delays or damage: tactics include multiple/redundant transportation modes and warehouses, secure packaging, and effective contracts with penalties. The example is Walmart, with its own trucking fleet and numerous distribution centers, finding alternative origins and delivery routes that bypass problem areas.","explainWrong":{"0":"Political risk is illustrated with Hard Rock Café franchising and licensing.","2":"Supplier quality failures is illustrated with Darden Restaurants (including third-party audits).","3":"Information loss or distortion is illustrated with Boeing’s international communication system."}},{"id":"qm-d1","topic":"qm","bank":"diagnose","type":"mc","stem":"The lecture names three views of quality. They are:","options":["Prevention, appraisal and internal failure only","User based, manufacturing based, and product based","Short-range, medium-range and long-range","Process focus, product focus and repetitive focus"],"answer":1,"explainRight":"User based: better performance, more features. Manufacturing based: conformance to standards, making it right the first time. Product based: specific and measurable attributes of the product.","explainWrong":{"0":"Those are three of the four costs of quality, not the three views of quality.","2":"Those are forecasting (and, separately, capacity) time horizons.","3":"Those are process strategies, not views of quality."}},{"id":"qm-d2","topic":"qm","bank":"diagnose","type":"mc","stem":"Which of the following is the lecture definition of appraisal costs?","options":["Reducing the potential for defects","Evaluating products, parts, and services","Producing defective parts or service before delivery","Defects discovered after delivery"],"answer":1,"explainRight":"Appraisal costs — evaluating products, parts, and services. Prevention is reducing the potential for defects; internal failure is producing defective parts or service before delivery; external failure is defects discovered after delivery.","explainWrong":{"0":"That is prevention costs.","2":"That is internal failure costs.","3":"That is external failure costs."}},{"id":"qm-d3","topic":"qm","bank":"diagnose","type":"tf","stem":"The lecture states that 85% of quality problems are due to materials and process.","options":["True","False"],"answer":0,"explainRight":"That sentence is on the employee-empowerment slide, which is about getting employees involved in product and process improvements.","explainWrong":{"1":"The lecture states the 85% figure in those words."}},{"id":"qm-d4","topic":"qm","bank":"diagnose","type":"mc","stem":"In the lecture’s PDCA cycle, “Do” is worded as:","options":["Identify the problem and make a plan","Test the plan","Is the plan working?","Implement the plan, document"],"answer":1,"explainRight":"Figure 6.3, wording as printed: Plan — Identify the problem and make a plan. Do — Test the plan. Check — Is the plan working? Act — Implement the plan, document.","explainWrong":{"0":"That is Plan.","2":"That is Check.","3":"That is Act."}},{"id":"qm-p101","topic":"qm","bank":"practise","type":"tf","stem":"An operations manager’s objective, the lecture says, is to build a total quality management system that identifies and satisfies customer needs.","options":["True","False"],"answer":0,"explainRight":"That is the opening definition on the “defining quality” slides.","explainWrong":{"1":"That is the lecture statement of the operations manager’s quality objective."},"level":1},{"id":"qm-p102","topic":"qm","bank":"practise","type":"mc","stem":"A “manufacturing based” view of quality, as defined in the lecture, emphasises:","options":["Better performance and more features","Conformance to standards, making it right the first time","Only specific and measurable attributes of the product, with no mention of conformance","Appointment scheduling in a clinic"],"answer":1,"explainRight":"Manufacturing based: conformance to standards, making it right the first time. User based: better performance, more features. Product based: specific and measurable attributes of the product.","explainWrong":{"0":"That is the user-based view.","2":"Specific and measurable attributes is the product-based view. Manufacturing based is about conformance and doing it right the first time.","3":"Appointments are a service demand-management method in the capacity lecture."},"level":1},{"id":"qm-p103","topic":"qm","bank":"practise","type":"mc","stem":"External failure costs are defined in the lecture as:","options":["Reducing the potential for defects","Evaluating products, parts, and services","Producing defective parts or service before delivery","Defects discovered after delivery"],"answer":3,"explainRight":"External failure costs — defects discovered after delivery. Internal failure is the same idea before delivery.","explainWrong":{"0":"That is prevention costs.","1":"That is appraisal costs.","2":"That is internal failure costs (before delivery)."},"level":1},{"id":"qm-p104","topic":"qm","bank":"practise","type":"tf","stem":"Managing quality, the lecture says, supports differentiation, low cost, and response strategies, and quality helps firms increase sales and reduce costs.","options":["True","False"],"answer":0,"explainRight":"Those are the quality-and-strategy bullets, alongside a figure on two ways quality improves profitability (sales gains and reduced costs).","explainWrong":{"1":"The lecture states both points."},"level":1},{"id":"qm-p201","topic":"qm","bank":"practise","type":"mc","stem":"A bakery finds a burnt batch still on the cooling rack, before any loaf is sold. In the lecture’s cost-of-quality language, that is closest to:","options":["Prevention costs","Appraisal costs","Internal failure costs","External failure costs"],"answer":2,"explainRight":"Internal failure costs are producing defective parts or service before delivery. External failure would be defects discovered after delivery (for example a customer complaint about a burnt loaf already sold). Prevention is reducing the potential for defects; appraisal is evaluating products, parts and services.","explainWrong":{"0":"Prevention is about reducing the potential for defects, not about a defect already produced.","1":"Appraisal is evaluating products, parts and services (inspection and similar activity), not the cost of a defect already made.","3":"External failure is after delivery."},"level":2},{"id":"qm-p202","topic":"qm","bank":"practise","type":"mc","stem":"In the lecture’s PDCA wording, “Act” is:","options":["Identify the problem and make a plan","Test the plan","Is the plan working?","Implement the plan, document"],"answer":3,"explainRight":"Act — “Implement the plan, document.” The four steps, as printed: Plan, Do, Check, Act, with the wordings above.","explainWrong":{"0":"That is Plan.","1":"That is Do.","2":"That is Check."},"level":2},{"id":"qm-p203","topic":"qm","bank":"practise","type":"tf","stem":"Kaizen, in the lecture, describes the ongoing process of unending improvement, and TQM and zero defects are also used to describe continuous improvement.","options":["True","False"],"answer":0,"explainRight":"Those sentences are on the continuous-improvement slide, which also says it is a never-ending process covering people, equipment, suppliers, materials and procedures, and that every operation can be improved.","explainWrong":{"1":"That is the lecture wording."},"level":2},{"id":"qm-p204","topic":"qm","bank":"practise","type":"mc","stem":"Just-in-time (JIT), as explained in the quality lecture, is a:","options":["Push system that always maximises inventory so that problems stay hidden","‘Pull’ system of production scheduling, including supply management, with production only when signalled","Qualitative forecast used for facility location","Type of external failure cost"],"answer":1,"explainRight":"JIT is a “pull” system of production scheduling including supply management; production only when signalled; it allows reduced inventory levels. The slide also says inventory costs money and hides process and material problems, and that JIT encourages improved process and product quality.","explainWrong":{"0":"The lecture describes a pull system that allows reduced inventory; it says inventory hides process and material problems, which is the opposite of “maximise inventory so problems stay hidden”.","2":"Facility location is a use of long-range forecasts, not a JIT definition.","3":"External failure is a cost of quality, not a description of JIT."},"level":2},{"id":"qm-p301","topic":"qm","bank":"practise","type":"tf","stem":"Inspection, the lecture says, involves examining items to see if an item is good or defective; it detects a defective product, does not correct deficiencies in process or product, and is expensive.","options":["True","False"],"answer":0,"explainRight":"Those are the inspection-slide bullets.","explainWrong":{"1":"The lecture states each of those points."},"level":3},{"id":"qm-p302","topic":"qm","bank":"practise","type":"mc","stem":"Which of the following is one of the seven when/where inspection points listed in the lecture?","options":["Only after the product has been scrapped, and at no earlier stage","At the supplier’s plant while the supplier is producing","In the Delphi panel, before any process exists","As a substitute for a mission statement"],"answer":1,"explainRight":"The seven points are: (1) at the supplier’s plant while the supplier is producing; (2) at your facility upon receipt of goods from your supplier; (3) before costly or irreversible processes; (4) during the step-by-step production process; (5) when production or service is complete; (6) before delivery to your customer; (7) at the point of customer contact. When and where depends on the type of process and the value added at each stage.","explainWrong":{"0":"The list includes several earlier points, including at the supplier’s plant and on receipt, not only after scrap.","2":"Delphi is a forecasting method, not an inspection point.","3":"Inspection is not described as a substitute for the mission."},"level":3},{"id":"qm-p303","topic":"qm","bank":"practise","type":"mc","stem":"Poka-yoke, in the lecture, is:","options":["The concept of foolproof devices or techniques designed to pass only acceptable products","A type of external failure after delivery","A long-range capacity option for acquiring competitors","A many-suppliers purchasing rule"],"answer":0,"explainRight":"“Poka-yoke is the concept of foolproof devices or techniques designed to pass only acceptable products.” The same slides say checklists ensure consistency and completeness, and that source inspection is also known as source control.","explainWrong":{"1":"External failure is a cost of quality (defects discovered after delivery), not poka-yoke.","2":"Acquiring competitors is a long-range capacity option.","3":"Many-suppliers is a sourcing strategy."},"level":3},{"id":"qm-p304","topic":"qm","bank":"practise","type":"tf","stem":"Six Sigma, benchmarking and Taguchi concepts are named on the “seven concepts of TQM” list, but they are not explained further in the uploaded slides.","options":["True","False"],"answer":0,"explainRight":"The seven concepts are: continuous improvement; Six Sigma; employee empowerment; benchmarking; just-in-time (JIT); Taguchi concepts; and knowledge of TQM tools. In this deck, Six Sigma, benchmarking and Taguchi concepts are not developed further. This tool does not invent those definitions.","explainWrong":{"1":"That is an accurate account of the uploaded lecture."},"level":3,"flag":"Check with your lecturer if Six Sigma, benchmarking or Taguchi concepts are taught from the textbook or another handout — they are not explained in the uploaded slides."},{"id":"qm-p401","topic":"qm","bank":"practise","type":"mc","stem":"On the TQM-tools slide, a Pareto chart and a flowchart (process diagram) are grouped as:","options":["Tools for generating ideas","Tools to organize the data","Tools for identifying problems","Costs of quality"],"answer":1,"explainRight":"Tools for generating ideas: check sheet; scatter diagram; cause-and-effect diagram. Tools to organize the data: Pareto chart; flowchart (process diagram). Tools for identifying problems: histogram; statistical process control chart. The slides name these tools and do not work examples or calculations.","explainWrong":{"0":"Generating ideas: check sheet, scatter diagram, cause-and-effect diagram.","2":"Identifying problems: histogram and statistical process control chart.","3":"The costs of quality are prevention, appraisal, internal failure and external failure."},"level":4},{"id":"qm-p402","topic":"qm","bank":"practise","type":"mc","stem":"Which of the following is listed as an employee-empowerment technique?","options":["Move responsibility to employees","Always keep responsibility away from employees","Replace PDCA with a naive forecast","Outsource inspection only, and never build communication networks"],"answer":0,"explainRight":"Techniques listed: build communication networks that include employees; develop open, supportive supervisors; move responsibility to employees; build a high-morale organization; create formal team structures. The same slide says 85% of quality problems are due to materials and process.","explainWrong":{"1":"The lecture says the opposite: move responsibility to employees.","2":"PDCA is the continuous-improvement cycle; a naive forecast is a forecasting method.","3":"Building communication networks that include employees is one of the listed techniques."},"level":4},{"id":"qm-p403","topic":"qm","bank":"practise","type":"mc","stem":"The lecture’s two ways quality improves profitability include sales gains and reduced costs. Sales gains are listed as coming via:","options":["Increased productivity, lower rework and scrap costs, and lower warranty costs only","Improved response, flexible pricing, and an improved reputation","Only a higher utilization ratio, with no sales effects named","A long-range forecast of facility location only"],"answer":1,"explainRight":"Sales gains via improved response, flexible pricing, and improved reputation. Reduced costs via increased productivity, lower rework and scrap costs, and lower warranty costs. Together these feed improved quality and increased profits.","explainWrong":{"0":"Those are the reduced-cost routes, not the sales-gains routes.","2":"The slide lists sales-gain routes (response, flexible pricing, reputation) as well as cost routes. Utilization is a capacity measure, not the heading here.","3":"Facility location is a use of long-range forecasts, not the quality-and-profit figure."},"level":4},{"id":"qm-p404","topic":"qm","bank":"practise","type":"mc","stem":"Source inspection, in the lecture, is also known as:","options":["Source control, with the next step in the process treated as your customer","Design capacity","A keiretsu network","Exponential smoothing"],"answer":0,"explainRight":"Source inspection is “also known as source control”. The next step in the process is your customer; the aim is to ensure a perfect product to your customer. Checklists ensure consistency and completeness.","explainWrong":{"1":"Design capacity is the maximum theoretical output of a system.","2":"Keiretsu networks are a named, unexplained sourcing strategy.","3":"Exponential smoothing is a named, unformulated forecasting method."},"level":4},{"id":"qm-m1","topic":"qm","bank":"mock","type":"mc","stem":"A customer finds a defect after a product has already been delivered. In the lecture’s cost-of-quality language, that is:","options":["Prevention costs","Appraisal costs","Internal failure costs","External failure costs"],"answer":3,"explainRight":"External failure costs are defects discovered after delivery. Internal failure is producing defective parts or service before delivery.","explainWrong":{"0":"Prevention is reducing the potential for defects.","1":"Appraisal is evaluating products, parts and services.","2":"Internal failure is before delivery."}},{"id":"qm-m2","topic":"qm","bank":"mock","type":"mc","stem":"In the lecture’s PDCA cycle, “Plan” is worded as:","options":["Identify the problem and make a plan","Test the plan","Is the plan working?","Implement the plan, document"],"answer":0,"explainRight":"Plan — “Identify the problem and make a plan.” Do — “Test the plan.” Check — “Is the plan working?” Act — “Implement the plan, document.”","explainWrong":{"1":"That is Do.","2":"That is Check.","3":"That is Act."}},{"id":"qm-m3","topic":"qm","bank":"mock","type":"tf","stem":"Inspection detects a defective product; the lecture says it does not correct deficiencies in process or product.","options":["True","False"],"answer":0,"explainRight":"Those two bullets appear together on the inspection slide, which also says inspection is expensive.","explainWrong":{"1":"The lecture states this explicitly."}}]};
+(function () {
+  "use strict";
+
+  var STORE = "aolm-study-progress-v1";
+  var MOCK_SECONDS = 25 * 60;
+  var live = document.getElementById("live");
+  var state = loadState();
+  var mockTick = null;
+
+  function defaultState() {
+    return {
+      view: "home",
+      topicId: null,
+      level: null,
+      qIndex: 0,
+      diagnose: { index: 0, answers: {}, finished: false },
+      practise: {},
+      mock: { started: false, remaining: MOCK_SECONDS, answers: {}, submitted: false, order: [] },
+      lessonsSeen: {}
+    };
+  }
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORE);
+      if (!raw) return defaultState();
+      var s = JSON.parse(raw);
+      var d = defaultState();
+      Object.keys(d).forEach(function (k) {
+        if (s[k] !== undefined) d[k] = s[k];
+      });
+      return d;
+    } catch (e) {
+      return defaultState();
+    }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORE, JSON.stringify(state));
+    } catch (e) { /* private mode etc. */ }
+  }
+
+  function announce(msg) {
+    if (live) live.textContent = msg;
+  }
+
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        var v = attrs[k];
+        if (v === null || v === undefined || v === false) return;
+        if (k === "className") n.className = v;
+        else if (k === "text") n.textContent = v;
+        else if (k === "html") n.innerHTML = v;
+        else if (k.indexOf("on") === 0 && typeof v === "function") n.addEventListener(k.slice(2), v);
+        else if (k === "checked" || k === "disabled") n[k] = !!v;
+        else n.setAttribute(k, v === true ? "" : String(v));
+      });
+    }
+    (kids || []).forEach(function (c) {
+      if (c == null) return;
+      n.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return n;
+  }
+
+  function topicById(id) {
+    for (var i = 0; i < DATA.topics.length; i++) if (DATA.topics[i].id === id) return DATA.topics[i];
+    return null;
+  }
+
+  function qsFor(topicId, bank) {
+    return DATA.questions.filter(function (q) {
+      return q.topic === topicId && q.bank === bank;
+    });
+  }
+
+  function practiseQs(topicId, level) {
+    return DATA.questions.filter(function (q) {
+      return q.topic === topicId && q.bank === "practise" && q.level === level;
+    });
+  }
+
+  function diagnoseQs() {
+    var out = [];
+    DATA.topics.forEach(function (t) {
+      qsFor(t.id, "diagnose").forEach(function (q) { out.push(q); });
+    });
+    return out;
+  }
+
+  function rating(correct, total) {
+    if (total <= 0) return "notyet";
+    if (correct >= 3) return "strong";
+    if (correct === 2) return "shaky";
+    return "notyet";
+  }
+
+  function ratingLabel(r) {
+    return r === "strong" ? "Strong" : r === "shaky" ? "Shaky" : "Not yet";
+  }
+
+  function practiseProgress(topicId) {
+    var all = DATA.questions.filter(function (q) { return q.topic === topicId && q.bank === "practise"; });
+    var rec = state.practise[topicId] || {};
+    var done = 0, right = 0;
+    all.forEach(function (q) {
+      if (rec[q.id]) {
+        done++;
+        if (rec[q.id].correct) right++;
+      }
+    });
+    return { done: done, total: all.length, right: right };
+  }
+
+  function diagnoseTopicResults() {
+    var res = {};
+    DATA.topics.forEach(function (t) {
+      var qs = qsFor(t.id, "diagnose");
+      var c = 0;
+      qs.forEach(function (q) {
+        var a = state.diagnose.answers[q.id];
+        if (a && a.correct) c++;
+      });
+      res[t.id] = { correct: c, total: qs.length, rating: state.diagnose.finished ? rating(c, qs.length) : null };
+    });
+    return res;
+  }
+
+  function isCorrect(q, value) {
+    if (q.type === "num") {
+      var n = parseFloat(String(value).replace(",", ".").trim());
+      if (!isFinite(n)) return false;
+      var expected = q.answer;
+      if (expected >= 1 && n > 0 && n <= 1.0001) n = n * 100;
+      var tol = q.tol == null ? 0.5 : q.tol;
+      return Math.abs(n - expected) <= tol;
+    }
+    return value === q.answer;
+  }
+
+  function go(view, extra) {
+    state.view = view;
+    if (extra) Object.keys(extra).forEach(function (k) { state[k] = extra[k]; });
+    saveState();
+    render();
+    window.scrollTo(0, 0);
+    var h = document.querySelector("#main h1");
+    if (h) { h.setAttribute("tabindex", "-1"); h.focus(); }
+  }
+
+  function confirmReset() {
+    if (window.confirm("Reset all saved progress on this device? This cannot be undone.")) {
+      try { localStorage.removeItem(STORE); } catch (e) {}
+      state = defaultState();
+      stopMockTimer();
+      announce("Progress has been reset.");
+      render();
+    }
+  }
+
+  function startMockTimer() {
+    stopMockTimer();
+    mockTick = setInterval(function () {
+      if (!state.mock.started || state.mock.submitted) { stopMockTimer(); return; }
+      state.mock.remaining -= 1;
+      if (state.mock.remaining <= 0) {
+        state.mock.remaining = 0;
+        state.mock.submitted = true;
+        stopMockTimer();
+        saveState();
+        announce("Time is up. Your mock has been submitted.");
+        go("mockResult");
+        return;
+      }
+      if (state.mock.remaining === 300) announce("Five minutes remaining.");
+      if (state.mock.remaining === 60) announce("One minute remaining.");
+      saveState();
+      var t = document.getElementById("mock-timer");
+      if (t) {
+        t.textContent = formatTime(state.mock.remaining);
+        t.className = "timer" + (state.mock.remaining <= 60 ? " danger" : state.mock.remaining <= 300 ? " warn" : "");
+      }
+    }, 1000);
+  }
+
+  function stopMockTimer() {
+    if (mockTick) { clearInterval(mockTick); mockTick = null; }
+  }
+
+  function formatTime(s) {
+    var m = Math.floor(s / 60);
+    var r = s % 60;
+    return m + ":" + (r < 10 ? "0" : "") + r;
+  }
+
+  /* ---------- views ---------- */
+
+  function header() {
+    var views = [
+      ["home", "Home"],
+      ["diagnose", "Diagnose"],
+      ["topics", "My topics"],
+      ["mockIntro", "Mock"]
+    ];
+    var current = state.view;
+    if (current === "lesson" || current === "practise") current = "topics";
+    if (current === "diagnoseResult") current = "diagnose";
+    if (current === "mock" || current === "mockResult") current = "mockIntro";
+    return el("header", { className: "app-header" }, [
+      el("div", { className: "header-inner" }, [
+        el("button", { className: "brand", type: "button", onclick: function () { go("home"); } }, [
+          "AOLM Study Tool",
+          el("small", { text: "Analytics for Operations and Logistics Management" })
+        ]),
+        el("nav", { className: "main-nav", "aria-label": "Main" }, views.map(function (v) {
+          return el("button", {
+            type: "button",
+            "aria-current": current === v[0] ? "page" : null,
+            onclick: function () {
+              if (v[0] === "diagnose") go(state.diagnose.finished ? "diagnoseResult" : "diagnoseStart");
+              else go(v[0]);
+            },
+            text: v[1]
+          });
+        })),
+        el("div", { className: "header-actions" }, [
+          el("button", { type: "button", className: "btn-reset", onclick: confirmReset, text: "Reset my progress" })
+        ])
+      ])
+    ]);
+  }
+
+  function footer() {
+    return el("footer", { className: "app-footer" }, [
+      el("p", { text: "Built from module slides and StudyNet quizzes. Not official. Check anything flagged with your lecturer." })
+    ]);
+  }
+
+  function viewHome() {
+    return [
+      el("div", { className: "home-hero" }, [
+        el("h1", { text: "Study the module, one idea at a time" }),
+        el("p", { className: "lead", text: "A practice tool for Analytics for Operations and Logistics Management. Lessons and questions are built only from your lecture slides and StudyNet quizzes — nothing invented." }),
+        el("div", { className: "actions" }, [
+          el("button", { type: "button", className: "btn", onclick: function () { go(state.diagnose.finished ? "diagnoseResult" : "diagnoseStart"); }, text: state.diagnose.finished ? "Review diagnosis" : "Start diagnosis" }),
+          el("button", { type: "button", className: "btn btn-secondary", onclick: function () { go("topics"); }, text: "My topics" }),
+          el("button", { type: "button", className: "btn btn-secondary", onclick: function () { go("mockIntro"); }, text: "Timed mock" })
+        ]),
+        el("p", { className: "note", text: "Progress is saved only on this device (in your browser). Use Reset my progress to start again. The real exam time limit is not stated in the module materials." })
+      ]),
+      el("h2", { text: "Topic map" }),
+      topicGrid(true)
+    ];
+  }
+
+  function topicGrid(linkToTopic) {
+    var diag = diagnoseTopicResults();
+    return el("div", { className: "topic-grid" }, DATA.topics.map(function (t) {
+      var p = practiseProgress(t.id);
+      var pct = p.total ? Math.round(100 * p.done / p.total) : 0;
+      var r = diag[t.id] && diag[t.id].rating;
+      var kids = [
+        el("div", { className: "num", text: "Topic " + t.n }),
+        el("h2", { text: t.title }),
+        el("div", { className: "progress", "aria-hidden": "true" }, [el("span", { style: "width:" + pct + "%" })]),
+        el("div", { text: "Practise " + p.done + " of " + p.total + (p.done ? " (" + p.right + " correct)" : "") })
+      ];
+      if (r) kids.push(el("span", { className: "badge badge-" + r, text: "Diagnose: " + ratingLabel(r) }));
+      if (linkToTopic) {
+        return el("button", { type: "button", className: "topic-card", onclick: function () { go("topic", { topicId: t.id }); } }, kids);
+      }
+      return el("div", { className: "topic-card" }, kids);
+    }));
+  }
+
+  function viewDiagnoseStart() {
+    return [
+      el("h1", { text: "Diagnose what you already know" }),
+      el("p", { text: "A short quiz — 4 questions on each of the 7 topics (28 in total). At the end you will see Strong, Shaky or Not yet for every topic, and a link to the lesson." }),
+      el("p", { text: "This is not the real exam. There is no timer here." }),
+      el("div", { className: "actions" }, [
+        el("button", { type: "button", className: "btn", onclick: function () {
+          state.diagnose = { index: 0, answers: {}, finished: false };
+          saveState();
+          go("diagnose");
+        }, text: "Begin diagnosis" }),
+        el("button", { type: "button", className: "btn btn-secondary", onclick: function () { go("home"); }, text: "Back to home" })
+      ])
+    ];
+  }
+
+  function viewDiagnose() {
+    var list = diagnoseQs();
+    var i = state.diagnose.index || 0;
+    if (i >= list.length) return viewDiagnoseResult();
+    var q = list[i];
+    var t = topicById(q.topic);
+    return [
+      el("p", { className: "crumb" }, [
+        el("button", { type: "button", onclick: function () { go("diagnoseStart"); }, text: "Diagnose" }),
+        " · Question " + (i + 1) + " of " + list.length + " · " + t.title
+      ]),
+      el("h1", { text: "Diagnosis" }),
+      questionBlock(q, state.diagnose.answers[q.id], function (val) {
+        var rec = { value: val, correct: isCorrect(q, val) };
+        state.diagnose.answers[q.id] = rec;
+        saveState();
+        render();
+        announce(rec.correct ? "Correct." : "Not quite.");
+      }, function () {
+        if (i + 1 >= list.length) {
+          state.diagnose.finished = true;
+          saveState();
+          go("diagnoseResult");
+        } else {
+          state.diagnose.index = i + 1;
+          saveState();
+          go("diagnose");
+        }
+      }, i + 1 >= list.length ? "See my results" : "Next question")
+    ];
+  }
+
+  function viewDiagnoseResult() {
+    var res = diagnoseTopicResults();
+    return [
+      el("h1", { text: "Your diagnosis" }),
+      el("p", { text: "Strong means you got 3 or 4 questions right in that topic; Shaky means 2; Not yet means 0 or 1. Use this to choose which lesson to open first." }),
+      el("div", { className: "card" }, DATA.topics.map(function (t) {
+        var r = res[t.id];
+        return el("div", { className: "score-row" }, [
+          el("div", null, [
+            el("strong", { text: t.n + ". " + t.title }),
+            el("div", { text: r.correct + " out of " + r.total + " correct" })
+          ]),
+          el("div", null, [
+            el("span", { className: "badge badge-" + r.rating, text: ratingLabel(r.rating) }),
+            " ",
+            el("button", { type: "button", className: "btn btn-secondary", style: "min-height:40px;padding:0.3rem 0.7rem;margin-left:0.4rem", onclick: function () { go("lesson", { topicId: t.id }); }, text: "Lesson" })
+          ])
+        ]);
+      })),
+      el("div", { className: "actions" }, [
+        el("button", { type: "button", className: "btn", onclick: function () { go("topics"); }, text: "Go to My topics" }),
+        el("button", { type: "button", className: "btn btn-secondary", onclick: function () {
+          if (window.confirm("Retake the diagnosis? Your previous diagnosis results will be cleared.")) {
+            state.diagnose = { index: 0, answers: {}, finished: false };
+            saveState();
+            go("diagnose");
+          }
+        }, text: "Retake diagnosis" })
+      ])
+    ];
+  }
+
+  function viewTopics() {
+    return [
+      el("h1", { text: "My topics" }),
+      el("p", { text: "Open a lesson, then practise in four levels: recall, apply, exam style, and mock style." }),
+      topicGrid(true)
+    ];
+  }
+
+  function viewTopic() {
+    var t = topicById(state.topicId);
+    if (!t) return viewTopics();
+    var p = practiseProgress(t.id);
+    var diag = diagnoseTopicResults()[t.id];
+    return [
+      el("p", { className: "crumb" }, [
+        el("button", { type: "button", onclick: function () { go("topics"); }, text: "My topics" }),
+        " · Topic " + t.n
+      ]),
+      el("h1", { text: t.title }),
+      el("p", { text: t.blurb }),
+      p.total ? el("p", { text: "Practise progress: " + p.done + " of " + p.total + " questions attempted (" + p.right + " correct so far)." }) : null,
+      diag && diag.rating ? el("p", null, [el("span", { className: "badge badge-" + diag.rating, text: "Diagnose: " + ratingLabel(diag.rating) })]) : null,
+      el("div", { className: "actions" }, [
+        el("button", { type: "button", className: "btn", onclick: function () { go("lesson", { topicId: t.id }); }, text: "Open lesson" })
+      ]),
+      el("h2", { text: "Practise" }),
+      el("div", { className: "level-row" }, [1, 2, 3, 4].map(function (lv) {
+        var qs = practiseQs(t.id, lv);
+        var rec = state.practise[t.id] || {};
+        var done = qs.filter(function (q) { return rec[q.id]; }).length;
+        var labels = { 1: "Level 1 · Recall", 2: "Level 2 · Apply", 3: "Level 3 · Exam style", 4: "Level 4 · Mock style" };
+        return el("button", {
+          type: "button",
+          className: "btn btn-secondary",
+          onclick: function () { state.qIndex = 0; go("practise", { topicId: t.id, level: lv, qIndex: 0 }); },
+          text: labels[lv] + " (" + done + "/" + qs.length + ")"
+        });
+      }))
+    ];
+  }
+
+  function viewLesson() {
+    var t = topicById(state.topicId);
+    if (!t) return viewTopics();
+    state.lessonsSeen[t.id] = true;
+    saveState();
+    var lesson = DATA.lessons[t.id];
+    var idx = DATA.topics.indexOf(t);
+    var kids = [
+      el("p", { className: "crumb" }, [
+        el("button", { type: "button", onclick: function () { go("topics"); }, text: "My topics" }),
+        " · ",
+        el("button", { type: "button", onclick: function () { go("topic", { topicId: t.id }); }, text: t.title }),
+        " · Lesson"
+      ]),
+      el("h1", { text: t.title })
+    ];
+    lesson.forEach(function (block) {
+      if (block.type === "h") kids.push(el("h2", { text: block.text }));
+      else if (block.type === "p") kids.push(el("p", { text: block.text }));
+      else if (block.type === "ul") kids.push(el("ul", { className: "plain" }, block.items.map(function (it) { return el("li", { text: it }); })));
+      else if (block.type === "flag") kids.push(el("p", { className: "flag" }, [el("strong", { text: "Check with your lecturer. " }), block.text]));
+      else if (block.type === "worked") {
+        kids.push(el("div", { className: "worked" }, [
+          el("strong", { text: block.title || "Worked example (from the lecture)" }),
+          el("ol", null, block.steps.map(function (s) { return el("li", { text: s }); }))
+        ]));
+      }
+    });
+    kids.push(el("div", { className: "actions" }, [
+      el("button", { type: "button", className: "btn", onclick: function () { go("practise", { topicId: t.id, level: 1, qIndex: 0 }); }, text: "Practise this topic" }),
+      idx > 0 ? el("button", { type: "button", className: "btn btn-secondary", onclick: function () { go("lesson", { topicId: DATA.topics[idx - 1].id }); }, text: "Previous topic" }) : null,
+      idx < DATA.topics.length - 1 ? el("button", { type: "button", className: "btn btn-secondary", onclick: function () { go("lesson", { topicId: DATA.topics[idx + 1].id }); }, text: "Next topic" }) : null
+    ]));
+    return kids;
+  }
+
+  function viewPractise() {
+    var t = topicById(state.topicId);
+    var qs = practiseQs(state.topicId, state.level);
+    if (!t || !qs.length) return viewTopic();
+    var i = state.qIndex || 0;
+    if (i < 0) i = 0;
+    if (i >= qs.length) i = qs.length - 1;
+    var q = qs[i];
+    var rec = (state.practise[t.id] || {})[q.id];
+    var labels = { 1: "Level 1 · Recall", 2: "Level 2 · Apply", 3: "Level 3 · Exam style", 4: "Level 4 · Mock style" };
+    return [
+      el("p", { className: "crumb" }, [
+        el("button", { type: "button", onclick: function () { go("topic", { topicId: t.id }); }, text: t.title }),
+        " · " + labels[state.level] + " · Question " + (i + 1) + " of " + qs.length
+      ]),
+      el("h1", { text: labels[state.level] }),
+      questionBlock(q, rec, function (val) {
+        if (!state.practise[t.id]) state.practise[t.id] = {};
+        state.practise[t.id][q.id] = { value: val, correct: isCorrect(q, val) };
+        saveState();
+        render();
+        announce(state.practise[t.id][q.id].correct ? "Correct." : "Not quite.");
+      }, function () {
+        if (i + 1 >= qs.length) go("topic", { topicId: t.id });
+        else { state.qIndex = i + 1; saveState(); go("practise"); }
+      }, i + 1 >= qs.length ? "Back to topic" : "Next question")
+    ];
+  }
+
+  function viewMockIntro() {
+    return [
+      el("h1", { text: "Timed mock" }),
+      el("p", { text: "21 questions, mixed across all seven topics, 1 point each. You have 25 minutes." }),
+      el("p", { className: "timer-note", text: "The real exam time limit is not stated in the module materials. 25 minutes is a study default for this practice paper, not an official rule." }),
+      el("p", { text: "The questions follow the style of the StudyNet quizzes (true/false and multiple choice), plus a few capacity calculations like the lecture examples. This is not an official past paper." }),
+      state.mock.started && !state.mock.submitted ? el("p", { text: "You have a mock in progress (" + formatTime(state.mock.remaining) + " left)." }) : null,
+      el("div", { className: "actions" }, [
+        el("button", { type: "button", className: "btn", onclick: function () {
+          var order = DATA.questions.filter(function (q) { return q.bank === "mock"; }).map(function (q) { return q.id; });
+          state.mock = { started: true, remaining: MOCK_SECONDS, answers: {}, submitted: false, order: order, index: 0 };
+          saveState();
+          go("mock");
+        }, text: state.mock.started && !state.mock.submitted ? "Restart mock" : "Start 25-minute mock" }),
+        state.mock.started && !state.mock.submitted ? el("button", { type: "button", className: "btn btn-secondary", onclick: function () { go("mock"); }, text: "Continue in-progress mock" }) : null,
+        state.mock.submitted ? el("button", { type: "button", className: "btn btn-secondary", onclick: function () { go("mockResult"); }, text: "View last results" }) : null
+      ])
+    ];
+  }
+
+  function mockList() {
+    var map = {};
+    DATA.questions.forEach(function (q) { if (q.bank === "mock") map[q.id] = q; });
+    return (state.mock.order || []).map(function (id) { return map[id]; }).filter(Boolean);
+  }
+
+  function viewMock() {
+    if (!state.mock.started) return viewMockIntro();
+    if (state.mock.submitted) return viewMockResult();
+    var list = mockList();
+    var i = state.mock.index || 0;
+    if (i >= list.length) i = list.length - 1;
+    var q = list[i];
+    var rec = state.mock.answers[q.id];
+    return [
+      el("p", { className: "crumb" }, [
+        "Mock · Question " + (i + 1) + " of " + list.length + " · ",
+        el("span", {
+          id: "mock-timer",
+          className: "timer" + (state.mock.remaining <= 60 ? " danger" : state.mock.remaining <= 300 ? " warn" : ""),
+          "aria-label": "Time remaining",
+          text: formatTime(state.mock.remaining)
+        })
+      ]),
+      el("h1", { text: "Timed mock" }),
+      questionBlock(q, rec, function (val) {
+        state.mock.answers[q.id] = { value: val, correct: isCorrect(q, val) };
+        saveState();
+        render();
+        announce(state.mock.answers[q.id].correct ? "Correct." : "Not quite.");
+      }, function () {
+        if (i + 1 >= list.length) {
+          state.mock.submitted = true;
+          stopMockTimer();
+          saveState();
+          go("mockResult");
+        } else {
+          state.mock.index = i + 1;
+          saveState();
+          go("mock");
+        }
+      }, i + 1 >= list.length ? "Submit mock" : "Next question")
+    ];
+  }
+
+  function viewMockResult() {
+    var list = mockList();
+    var byT = {};
+    var total = 0, right = 0;
+    list.forEach(function (q) {
+      if (!byT[q.topic]) byT[q.topic] = { total: 0, right: 0 };
+      byT[q.topic].total++;
+      total++;
+      if (state.mock.answers[q.id] && state.mock.answers[q.id].correct) {
+        byT[q.topic].right++;
+        right++;
+      }
+    });
+    return [
+      el("h1", { text: "Mock results" }),
+      el("p", { text: "You scored " + right + " out of " + total + " (" + (total ? Math.round(100 * right / total) : 0) + "%)." }),
+      el("p", { className: "note", text: "This is a study mock, not an official mark. The real exam time limit and paper format are not stated in the materials you uploaded." }),
+      el("h2", { text: "Breakdown by topic" }),
+      el("div", { className: "card" }, DATA.topics.map(function (t) {
+        var r = byT[t.id] || { total: 0, right: 0 };
+        return el("div", { className: "score-row" }, [
+          el("div", null, [el("strong", { text: t.n + ". " + t.title }), el("div", { text: r.right + " / " + r.total })]),
+          el("button", { type: "button", className: "btn btn-secondary", style: "min-height:40px;padding:0.3rem 0.7rem", onclick: function () { go("lesson", { topicId: t.id }); }, text: "Review lesson" })
+        ]);
+      })),
+      el("div", { className: "actions" }, [
+        el("button", { type: "button", className: "btn btn-secondary", onclick: function () { go("home"); }, text: "Home" })
+      ])
+    ];
+  }
+
+  function questionBlock(q, rec, onSubmit, onNext, nextLabel) {
+    var locked = !!(rec && rec.value !== undefined && rec.value !== null && rec.value !== "");
+    if (q.type === "num") locked = !!(rec && rec.value !== undefined && rec.value !== null && String(rec.value) !== "");
+    var wrap = el("div", { className: "card" }, [
+      el("p", { className: "q-meta", text: (q.type === "tf" ? "True or False" : q.type === "num" ? "Numeric" : "Multiple choice") + " · 1 point" }),
+      el("fieldset", { className: "options" }, [el("legend", { text: q.stem })].concat(fields(q, rec, locked))),
+      q.hint ? el("p", { className: "note", text: q.hint }) : null
+    ]);
+    if (!locked) {
+      var submit = el("button", { type: "button", className: "btn", text: "Check answer" });
+      submit.addEventListener("click", function () {
+        var val = readAnswer(q, wrap);
+        if (val === undefined || val === null || val === "") {
+          announce("Please choose an answer first.");
+          return;
+        }
+        onSubmit(val);
+      });
+      wrap.appendChild(el("div", { className: "actions" }, [submit]));
+    } else {
+      wrap.appendChild(feedbackEl(q, rec));
+      var next = el("button", { type: "button", className: "btn", text: nextLabel || "Next" });
+      next.addEventListener("click", onNext);
+      wrap.appendChild(el("div", { className: "actions" }, [next]));
+    }
+    return wrap;
+  }
+
+  function fields(q, rec, locked) {
+    if (q.type === "num") {
+      var inp = el("input", {
+        type: "text",
+        className: "num-input",
+        inputmode: "decimal",
+        id: "ans-" + q.id,
+        "aria-label": "Your numeric answer" + (q.unit ? " in " + q.unit : ""),
+        value: rec && rec.value != null ? String(rec.value) : "",
+        disabled: locked
+      });
+      var lab = el("label", { "for": "ans-" + q.id, text: q.unit ? "Enter your answer" + (q.unit === "%" ? " as a percentage (for example 73.4)" : " (" + q.unit + ")") : "Enter your answer" });
+      return [lab, inp];
+    }
+    var opts = q.options || ["True", "False"];
+    return opts.map(function (lab, i) {
+      var cls = "label-opt";
+      if (locked) {
+        if (i === q.answer) cls += " show-right";
+        if (rec && rec.value === i && i !== q.answer) cls += " chosen-bad";
+        if (rec && rec.value === i && i === q.answer) cls += " chosen-ok";
+      }
+      return el("label", { className: cls }, [
+        el("input", { type: "radio", name: "ans-" + q.id, value: String(i), checked: rec && rec.value === i, disabled: locked }),
+        el("span", { text: lab })
+      ]);
+    });
+  }
+
+  function readAnswer(q, wrap) {
+    if (q.type === "num") {
+      var inp = wrap.querySelector("input.num-input");
+      return inp ? inp.value : "";
+    }
+    var sel = wrap.querySelector("input[type=radio]:checked");
+    if (!sel) return null;
+    return parseInt(sel.value, 10);
+  }
+
+  function feedbackEl(q, rec) {
+    var ok = rec && rec.correct;
+    var box = el("div", { className: "feedback " + (ok ? "ok" : "bad"), "aria-live": "polite" }, [
+      el("h3", { text: ok ? "Correct" : "Not quite" })
+    ]);
+    if (q.explainRight) box.appendChild(el("p", { text: q.explainRight }));
+    if (!ok && rec) {
+      var wx;
+      if (q.type === "num") {
+        wx = q.explainWrongNum || ("The lecture method gives " + q.answer + (q.unit || "") + ". Close answers within 0.5 percentage points are accepted.");
+      } else if (q.explainWrong && q.explainWrong[String(rec.value)]) {
+        wx = q.explainWrong[String(rec.value)];
+      } else if (q.explainWrong && q.explainWrong[rec.value]) {
+        wx = q.explainWrong[rec.value];
+      }
+      if (wx) box.appendChild(el("p", { text: wx }));
+    }
+    if (q.working && q.working.length) {
+      box.appendChild(el("p", { text: "Working:" }));
+      box.appendChild(el("ol", null, q.working.map(function (s) { return el("li", { text: s }); })));
+    }
+    if (q.flag) box.appendChild(el("p", { className: "flag", text: q.flag }));
+    return box;
+  }
+
+  function render() {
+    if (state.view === "mock" && state.mock.started && !state.mock.submitted) startMockTimer();
+    else stopMockTimer();
+
+    var view = state.view;
+    var body;
+    if (view === "home") body = viewHome();
+    else if (view === "diagnoseStart") body = viewDiagnoseStart();
+    else if (view === "diagnose") body = viewDiagnose();
+    else if (view === "diagnoseResult") body = viewDiagnoseResult();
+    else if (view === "topics") body = viewTopics();
+    else if (view === "topic") body = viewTopic();
+    else if (view === "lesson") body = viewLesson();
+    else if (view === "practise") body = viewPractise();
+    else if (view === "mockIntro") body = viewMockIntro();
+    else if (view === "mock") body = viewMock();
+    else if (view === "mockResult") body = viewMockResult();
+    else body = viewHome();
+
+    app.innerHTML = "";
+    document.body.insertBefore(header(), document.getElementById("live") ? document.getElementById("live").nextSibling : document.body.firstChild);
+    var oldH = document.querySelector("header.app-header");
+    if (oldH && oldH !== document.querySelectorAll("header.app-header")[document.querySelectorAll("header.app-header").length - 1]) {
+      /* keep a single header */
+    }
+    var headers = document.querySelectorAll("header.app-header");
+    for (var i = 0; i < headers.length - 1; i++) headers[i].remove();
+    var mains = document.querySelectorAll("main#main");
+    mains.forEach(function (m) { m.remove(); });
+    var foots = document.querySelectorAll("footer.app-footer");
+    foots.forEach(function (f) { f.remove(); });
+
+    var main = el("main", { id: "main" });
+    (body || []).forEach(function (n) { if (n) main.appendChild(n); });
+    var h = document.querySelector("header.app-header");
+    if (h && h.nextSibling) document.body.insertBefore(main, h.nextSibling);
+    else document.body.appendChild(main);
+    document.body.appendChild(footer());
+  }
+
+  /* Fix: render should not leak headers. Rebuild body around #app. */
+  function renderClean() {
+    if (state.view === "mock" && state.mock.started && !state.mock.submitted) startMockTimer();
+    else if (state.view !== "mock") stopMockTimer();
+
+    var view = state.view;
+    var body;
+    if (view === "home") body = viewHome();
+    else if (view === "diagnoseStart") body = viewDiagnoseStart();
+    else if (view === "diagnose") body = viewDiagnose();
+    else if (view === "diagnoseResult") body = viewDiagnoseResult();
+    else if (view === "topics") body = viewTopics();
+    else if (view === "topic") body = viewTopic();
+    else if (view === "lesson") body = viewLesson();
+    else if (view === "practise") body = viewPractise();
+    else if (view === "mockIntro") body = viewMockIntro();
+    else if (view === "mock") body = viewMock();
+    else if (view === "mockResult") body = viewMockResult();
+    else body = viewHome();
+
+    var root = document.getElementById("shell");
+    root.innerHTML = "";
+    root.appendChild(header());
+    var main = el("main", { id: "main" });
+    (body || []).forEach(function (n) { if (n) main.appendChild(n); });
+    root.appendChild(main);
+    root.appendChild(footer());
+  }
+
+  render = renderClean;
+  render();
+})();
+
+</script>
+</body>
+</html>
